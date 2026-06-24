@@ -1,0 +1,42 @@
+groups:
+  - name: alice-observability
+    rules:
+      - alert: AliceHealthcheckFailing
+        expr: alice_healthcheck_failed_checks > 0
+        for: 2m
+        labels:
+          severity: critical
+          service: alice
+        annotations:
+          summary: Alice healthcheck has failing checks
+          description: Latest Alice observability healthcheck reports one or more failing checks.
+
+      - alert: AliceSLOBelowTarget
+        expr: alice_slo_pass_rate < 0.99
+        for: 5m
+        labels:
+          severity: warning
+          service: alice
+        annotations:
+          summary: Alice SLO pass rate below 99%
+          description: Alice trailing healthcheck pass rate is below the production target.
+
+      - alert: AliceTelegramMemoryHigh
+        expr: alice_telegram_rss_mb > 750
+        for: 5m
+        labels:
+          severity: warning
+          service: alice
+        annotations:
+          summary: Alice Telegram daemon memory high
+          description: Telegram daemon RSS memory is above the configured threshold.
+
+      - alert: AliceTelegramRestartStorm
+        expr: alice_telegram_runs > 25
+        for: 5m
+        labels:
+          severity: warning
+          service: alice
+        annotations:
+          summary: Alice Telegram daemon restart count high
+          description: Launchd run count indicates a possible restart loop.

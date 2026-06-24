@@ -1,0 +1,44 @@
+[
+ [
+  "Vannevar Labs",
+  "greenhouse",
+  "vannevarlabs",
+  "Felicis",
+  33
+ ],
+ [
+  "Loopwork",
+  "ashby",
+  "loopwork",
+  "Felicis",
+  40
+ ],
+ [
+  "Mind Robotics",
+  "ashby",
+  "mindrobotics",
+  "BCV",
+  20
+ ],
+ [
+  "Redis",
+  "ashby",
+  "redis",
+  "BCV",
+  68
+ ],
+ [
+  "Bloomreach",
+  "greenhouse",
+  "bloomreach",
+  "BCV",
+  83
+ ],
+ [
+  "Flux",
+  "ashby",
+  "flux",
+  "BCV",
+  11
+ ]
+]

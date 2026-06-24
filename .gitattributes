@@ -1,0 +1,6 @@
+# Large data fixtures (verbatim third-party JD bodies, eval sets) are data, not
+# code — exclude them from GitHub's language statistics.
+tests/fixtures/*.jsonl linguist-generated=true
+evals/*.jsonl linguist-generated=true
+# SQL migrations + reporting queries are real source; make sure they're counted.
+*.sql linguist-detectable=true

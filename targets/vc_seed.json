@@ -1,0 +1,13 @@
+[
+ {"name": "Avidbots",        "fund": "Felicis", "website": "https://avidbots.com"},
+ {"name": "Skild AI",        "fund": "Felicis", "website": "https://skild.ai"},
+ {"name": "Radiant Nuclear", "fund": "Felicis", "website": "https://radiantnuclear.com"},
+ {"name": "Vannevar Labs",   "fund": "Felicis", "website": "https://vannevarlabs.com"},
+ {"name": "Loopwork",        "fund": "Felicis", "website": "https://loopwork.io"},
+ {"name": "Mind Robotics",   "fund": "BCV",     "website": "https://mindrobotics.ai"},
+ {"name": "Sunday Robotics", "fund": "BCV",     "website": "https://sundayrobotics.com"},
+ {"name": "Moveworks",       "fund": "BCV",     "website": "https://moveworks.com"},
+ {"name": "Redis",           "fund": "BCV",     "website": "https://redis.io"},
+ {"name": "Bloomreach",      "fund": "BCV",     "website": "https://bloomreach.com"},
+ {"name": "Flux",            "fund": "BCV",     "website": "https://flux.ai"}
+]

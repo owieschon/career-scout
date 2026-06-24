@@ -1,0 +1,591 @@
+# Jordan Avery's fit model, v1.
+#
+# Synthetic example data — a fictional engineer used to demonstrate the
+# retrieval engine. Not anyone's real history.
+#
+# Status: DATA ONLY. No engine code yet (per build-sequence §13 step 1 of
+# docs/SOURCING_MATCHER_REDESIGN.md). This file encodes the operator's fit model
+# as versioned data, separate from any engine. Engine code, when authorized
+# in later steps, READS this; it does not embed it.
+#
+# Structural constraints honored at the data-shape level:
+#   - World labels are NEVER used as keyword tokens. Each world is a triple
+#     {label, definition, anti_examples}. The engine's Dimension B prompt
+#     (when built) reads `definition` + `anti_examples`; the `label` is an
+#     internal handle for the returned strength score, never in the prompt
+#     body. See §4.1 of the redesign doc — "label not in prompt" is the
+#     keyword-substring-disguised-as-semantic guard.
+#   - Reason set values referenced here (under [learning_layer]) must match
+#     `FROZEN_REASON_SET` in scripts/lead_cuts.py when that file is built.
+#     The writer raises ValueError on off-schema reasons (§6.1 of the doc).
+#   - `background_sensitivity_flag` does NOT appear in this config. It's a
+#     digest-renderer enrichment, NEVER an input to the scorer. The scorer's
+#     signature explicitly excludes it (§9 of the doc).
+#
+# Versioning: this file is the AUTHORITATIVE config for matcher engine v1.
+# Bump `version` when the model changes; the engine logs the version of the
+# config used in each per-listing score record (for audit + reproducibility).
+
+version              = "operator-v3"
+created              = "2026-05-29"
+updated              = "2026-05-31"
+config_schema_minor  = 1
+# operator-v2 deltas (2026-05-31, calibration session): D1 AI-observability is
+# ON-domain (new domain world below; removed from the judge's off-domain list);
+# D2 PM-title = REACH (surface, never gated); seniority-too-senior + comp-too-high
+# = REACH not NOT-FIT ("operator reaches for seniority/pay"); remote-first is a
+# preference, not a hard gate; remote + US-region preference is NOT a
+# location fail. These are the OPERATOR's parameters, not engine defaults.
+
+
+# ─── IDENTITY — who this profile is (Phase 0: de-hardcoded from the engine) ───
+#
+# Operator-specific values the judge prompt used to embed in code. A different
+# user supplies their own here; the engine READS these, never hardcodes them. The
+# judge renders "<NAME>'S PROFILE ... <portfolio_summary>".
+
+[identity]
+name              = "Jordan Avery"
+portfolio_summary = "AI/ML + platform engineer with an industrial background, 10+ yrs across applied ML, data engineering, and technical customer work. Lattice Additive (metal additive manufacturing — process-data pipelines, anomaly detection on print telemetry, served aerospace OEM customers), Ironclad Industrial (heavy-duty parts mfr — sales + transaction analytics, SKU/catalog data, distributor segmentation). Now at Cadence Analytics (B2B revenue-intelligence SaaS), shipping production ML + an LLM enrichment layer with eval discipline. Self-taught, non-credentialed but shipping."
+
+
+# ─── BINARY GATES — applied FIRST, before any scoring ────────────────────────
+#
+# Type: binary_gate. Hard on/off, non-overridable. A perfect-fit role that
+# fails a gate is unviable; no score "rescues" it. Per §3.2 of the doc.
+
+[gates.location]
+type                  = "binary_gate"
+remote_us_eligible    = true
+non_remote_locations  = ["Columbus, OH", "Franklin County, OH"]
+non_remote_radius_mi  = 50
+travel_allowed        = true
+# Remote-first preference: the operator prefers remote-first work and a
+# US region. This is a preference surfaced in scoring, not a hard gate.
+# Phase 0: location calibration de-hardcoded from scripts/location_gate.py. WHERE
+# the user counts as eligible. base_patterns = home tokens; eligible_region_patterns
+# = broad regions the user treats as including them (a midwest/national
+# calibration — a California user would list West Coast/Pacific instead). Regex
+# alternation bodies (literal TOML strings); the gate compiles them.
+base_patterns            = '\bohio\b|\bOH\b|columbus|franklin county|central ohio'
+eligible_region_patterns = 'midwest|great lakes|ohio valley|north central|east coast|eastern us|eastern u\.s\.|eastern united states|eastern time|eastern timezone|\bE[SD]T\b|\bET\b|anywhere in the (?:us|u\.s\.|united states|country)|continental us|lower 48|nationwide|across the (?:us|country)|remote[ -]?us|us[ -]?remote|us[ -]?based'
+
+[gates.anti_fit]
+type        = "binary_gate"
+# Anti-fits are excluded structurally — these are not weighted-low, they
+# are gated out. Distinct from low-scored functional buckets (§3.1).
+buckets     = ["pure_marketing", "pure_ic_sales_no_tech_depth", "pure_eng_no_customer"]
+
+
+# ─── MULTI-SELECT — choose several, all valid simultaneously ─────────────────
+#
+# Type: multi_select. Each selected value is independently valid; the engine
+# treats the multi-select as set-membership (the listing matches the SELECT
+# if it matches ANY checked option). Per §3.2.
+
+[selects.seniority]
+type     = "multi_select"
+selected = [
+  # Mid-senior IC: senior account executive, senior CSM, staff/principal IC
+  "mid_senior_ic",
+  # First-line manager: revenue/sales-ops manager, sales-engineering lead,
+  # customer-success-lead, head-of-(narrow-function) at sub-$50M company
+  "first_line_manager",
+  # Founding role: high-performing IC who DEFINES a function/dept as a
+  # startup scales (its own distinct box per dispatch, not a sub-case of
+  # the other two — explicitly multi-select)
+  "founding_role",
+]
+# Selected reasoning: matches the operator's current career calibration. Tune via
+# the human-tuning loop (Layer 3) when cut-data shows seniority mismatches
+# over time.
+
+
+# ─── WEIGHTED — gradient dimensions that trade against each other ────────────
+#
+# Type: weighted. Genuine matters-of-degree. Per §3.2.
+
+[weights.functional_gradient]
+type      = "weighted"
+# Functional fit per the operator's dispatch: a ≈ c > b, anti-fits gated out.
+# (a) commercial-led, technically fluent: owns customer/revenue relationship;
+#     technical depth is the EDGE. TAM, Senior CSM, Solutions Engineer
+#     (with revenue), Sales Engineer (with customer-success scope).
+# (c) genuine bridge: hired BECAUSE he does both. RevOps with a sales-tech
+#     stack ownership; Solutions Architect with revenue line; Director of
+#     Customer Engineering; field-CTO/SE roles where the comp reflects
+#     the bridge value.
+# (b) technical-led, hands-on building/systems: less direct customer
+#     revenue ownership; more "build the system / write the code" + some
+#     customer exposure. Lower score, not gated.
+[weights.functional_gradient.buckets]
+a = 1.0
+c = 1.0
+b = 0.6
+
+[weights.combinatoric_emphasis]
+type  = "weighted"
+# 0.0 = pure conventional fit; 1.0 = chase only easter eggs.
+# Default high enough to protect tails per the dispatch (recall-first).
+value = 0.7
+
+[weights.adjacency_coverage]
+type  = "weighted"
+# How generously the matcher accepts world-adjacency (a portfolio world
+# being "close enough" to a role's required domain, vs. an exact overlap).
+# Higher = more tolerant of adjacency, which is what surfaces the
+# combinatoric candidates. Per §3.1.
+value = 0.6
+
+[weights.fit_vs_value_tradeoff]
+type         = "weighted"
+# THE master tradeoff. How much fit "buys" against comp/seniority/upside.
+# The operator's read: fit weighted higher than value ("go lower for great
+# fit"). Value is not zero — comp/upside still matter — but fit
+# dominates in the close calls.
+fit_weight   = 0.65
+value_weight = 0.35
+
+
+# ─── FILL-IN-THE-BLANK — literal values used as-is ───────────────────────────
+#
+# Type: fill_in. Not scored, not weighted — consumed by engine steps that
+# need the value directly. Per §3.2.
+
+[values.location_center]
+type         = "fill_in"
+city         = "Columbus"
+state        = "OH"
+radius_miles = 50
+
+
+# ─── COMPOSITE — a value modulates a weight ──────────────────────────────────
+#
+# Type: composite. First-class per §3.2 — NOT a fallback. Real fit decisions
+# routinely involve "a value that modulates a weight"; designing for this
+# avoids the all-weights flattening.
+
+[composite.comp_floor]
+type                    = "composite"
+# Illustrative example values, not anyone's real comp preferences:
+# an example target band (e.g. $150k–$190k base).
+threshold_usd           = 190000
+# The threshold (above) is the VALUE that parameterizes the weight (below):
+# `fit_vs_value_tradeoff` decides how much fit "buys." This composite says
+# WHERE on the comp axis the buy-down logic starts kicking in.
+soft_below_threshold    = true
+# Below the threshold, great fit can pull the role in anyway, but each
+# dollar below costs more in fit-weight terms. Above the threshold, comp
+# is a plus but not a multiplier — not comp-chasing past adequate.
+hard_floor_usd          = 150000
+# Hard floor — a fill-in inside the composite. The doc allows composites to
+# nest. Below the hard floor (livable-given-runway), the role is killed
+# regardless of fit unless a strong negotiability signal exists.
+
+
+# ─── DOMAIN WORLDS — the portfolio coverage Dimension B scores against ──────
+#
+# CRITICAL STRUCTURAL CONSTRAINT (§4.1 of the redesign doc):
+# Each world is a TRIPLE {label, definition, anti_examples}. The label is
+# NEVER passed to the model. Dimension B's prompt is built from `definition`
+# + `anti_examples` only. The label is an internal handle that the engine
+# uses to attach the model's per-world strength score back to a stable name
+# for downstream code + logging.
+#
+# This is the keyword-substring-disguised-as-semantic guard. If labels
+# leaked into the prompt, the model would match by surface tokens (the
+# substring failure the redesign exists to eliminate). Definitions force
+# the model to reason semantically.
+#
+# This is a SEED set — non-exhaustive per the dispatch's framing of the
+# operator's portfolio as "non-enumerable." The 12 worlds below are the load-bearing
+# ones identified during design. Add more via Layer 3 (human-tuning) when
+# the operator identifies a recurring world the seed doesn't cover.
+
+[[domain_worlds]]
+label         = "industrial_manufacturing"
+definition    = "Companies whose product or operations center on producing physical goods at scale in factories, or selling into F500-scale manufacturing operations. Includes industrial equipment makers, industrial AI/IoT platforms, factory-floor software, supply-chain platforms for manufacturers, and durable-goods OEMs."
+anti_examples = [
+  "Pure SaaS with no industrial vertical",
+  "Consumer marketplaces / D2C brands",
+  "Fintech / payments / banking-tech",
+  "Healthcare patient-facing software",
+]
+
+[[domain_worlds]]
+label         = "ai_observability_eval"
+definition    = "Companies whose product centers on LLM/AI observability, tracing, evaluation, experiment tracking, agent telemetry, or prompt/RAG quality measurement. The operator is a hands-on user of this exact tooling — Phoenix/OpenTelemetry instrumentation on a production LLM client, self-built WER/eval harnesses — so this is lived domain, not mere adjacency. Includes Arize/Phoenix, LangSmith, Braintrust, Comet/Opik, Galileo, and eval-framework companies."
+anti_examples = [
+  "Generic non-AI application-performance monitoring (APM) with no LLM/AI eval angle",
+  "Pure data-warehouse / data-infrastructure with no AI-quality or eval layer",
+]
+
+[[domain_worlds]]
+label         = "additive_cnc_hardware"
+definition    = "Companies whose product or expertise centers on 3D printing / additive manufacturing, CNC machining, or other digitally-controlled spatial-hardware fabrication. Includes AM machine OEMs, materials science for AM/CNC, software for these processes, and adjacent precision-fabrication tooling and inspection."
+anti_examples = [
+  "General industrial software with no AM/CNC tie",
+  "Consumer 3D-printed novelty goods (Shapeways-class)",
+  "Pure prototyping bureaus with no platform play",
+]
+
+[[domain_worlds]]
+label         = "technical_account_mgmt"
+definition    = "Roles or company functions where the work is owning a technical customer relationship: running QBRs, leading technical deployment, translating between customer engineering and vendor product. Sales-engineering, solutions-architect, customer-success-engineer, and field-CTO roles fit. The work composes technical depth with revenue-ownership or expansion responsibility."
+anti_examples = [
+  "Pure transactional sales (SDR/BDR, no technical depth)",
+  "Customer-support tier-1 ticket handling",
+  "Pure pre-sales demo-and-handoff with no post-sale ownership",
+]
+
+[[domain_worlds]]
+label         = "revops_systems_data"
+definition    = "Roles or company functions building the revenue-operations infrastructure: CRM administration, sales-data pipelines, forecasting models, GTM analytics, revenue attribution, sales-tech-stack ownership. The work is structuring HOW revenue gets predicted, measured, and operated on — not directly closing deals."
+anti_examples = [
+  "Pure finance / accounting / FP&A roles",
+  "Marketing analytics with no revenue-attribution scope",
+  "Data engineering with no GTM-system context",
+]
+
+[[domain_worlds]]
+label         = "self_taught_ml_fullstack"
+definition    = "Roles or company functions where building production ML + full-stack software is part of the work — particularly where a sole/lead builder shapes a product end-to-end rather than serving a narrow specialty. Includes AI-native startups' founding-engineer, applied-AI, forward-deployed-engineer, and solo-product-builder roles. The 'self-taught' qualifier matters — the operator's path is non-credentialed but shipping."
+anti_examples = [
+  "Research roles requiring PhD / publication record",
+  "Narrow ML-platform-engineering at FAANG scale",
+  "Frontend-only or backend-only specialist roles",
+]
+
+[[domain_worlds]]
+label         = "global_supply_chain"
+definition    = "Roles or company functions touching multi-region / multi-country supply chain operations: vendor management across countries, logistics platforms, international procurement, regulated cross-border product flows. The operator's distribution background (multi-country operations) is the credibility surface."
+anti_examples = [
+  "Single-country logistics with no international scope",
+  "Pure last-mile / consumer-delivery operations",
+  "Procurement of services rather than physical goods",
+]
+
+[[domain_worlds]]
+label         = "makerspace_education_pedagogy"
+definition    = "Roles or company functions where teaching technical skills (especially design / prototyping / hands-on fabrication) is part of the work, or where the product serves educators in technical domains. Includes hardware-education platforms, technical-curriculum companies, and roles requiring 'teaching as part of customer success' — common in technical-onboarding-heavy SaaS."
+anti_examples = [
+  "Pure K-12 education without technical/pedagogy depth",
+  "Corporate training platforms with no hands-on technical component",
+]
+
+[[domain_worlds]]
+label         = "aerospace_rocketry_defense"
+definition    = "Companies whose product, customers, or operations center on aerospace, space launch, satellite systems, defense / dual-use, or precision-aerospace components. The operator's Lattice Additive background (metal AM serving major aerospace OEM customers) is the credibility surface — both ICP-side AND vendor-side fit."
+anti_examples = [
+  "Pure commercial aviation maintenance with no advanced-manufacturing tie",
+  "Generic government-contractor IT services",
+]
+
+[[domain_worlds]]
+label         = "spatial_hardware_robotics_drones"
+definition    = "Companies whose product centers on physical-world hardware that moves through or measures space: robotics platforms, drones / UAVs, autonomous vehicles, spatial-computing systems, precision-positioning systems. The operator's CAD/PLM/additive credibility makes adjacent spatial-hardware roles a high-combinatoric-fit category even without direct prior experience."
+anti_examples = [
+  "Software-only AI with no hardware tie",
+  "Smart-home consumer devices",
+]
+
+[[domain_worlds]]
+label         = "buyer_side_empathy_industrial"
+definition    = "Roles where deep understanding of how industrial buyers actually buy is the edge — vertical-specific CRM/ERP fluency, multi-stakeholder enterprise-deal mechanics, technical-procurement workflow knowledge. Composed by selling INTO aerospace/defense, additive, manufacturing, and adjacent technical-procurement environments."
+anti_examples = [
+  "Pure consumer-buyer-journey roles",
+  "B2B SMB SaaS with single-decisionmaker procurement",
+]
+
+[[domain_worlds]]
+label         = "erp_crm_cli_data_fluency"
+definition    = "Roles where deep ERP/CRM data fluency is the work or the credibility surface: NetSuite, SAP, Oracle, Salesforce, HubSpot, with CLI / SQL / API depth. Includes RevOps roles at companies whose product integrates into these systems, and TAM/SE roles where ERP/CRM integration is part of the deployment."
+anti_examples = [
+  "Pure end-user CRM administration without integration scope",
+  "Generic data-analytics roles with no operational-system depth",
+]
+
+[[domain_worlds]]
+label         = "startup_marketing_operator"
+definition    = "Roles where having owned a full startup marketing function — content + demand + brand + product-marketing under one head — is the credibility surface. Founding GTM, founding marketer, head-of-marketing at sub-$10M ARR. The operator owned an early-stage marketing function; this is the substrate."
+anti_examples = [
+  "Specialist marketing roles at scale (paid acquisition only, content only)",
+  "Marketing leadership at $50M+ ARR where specialization is the structure",
+]
+
+[[domain_worlds]]
+label         = "ai_agents_orchestration_mcp"
+definition    = "Companies whose product centers on building, orchestrating, or operating AI AGENTS — agent frameworks and runtimes, multi-agent orchestration, tool-calling / function-calling infrastructure, Model Context Protocol (MCP) servers and tooling, agent memory, agent eval, and agentic application products. The operator has hands-on lived depth here, not adjacency: a hand-rolled multi-pass agent orchestrator across three transports (claude-agent-sdk + raw OpenAI-shape + raw Anthropic HTTP), a production dual-transport MCP server (stdio + HTTP, JWT-authenticated), tool-calling loops, PreToolUse allowlist guardrails, and explicit prompt-cache management. AI Agent Engineer, Applied AI Engineer (agents), Member of Technical Staff, and agent-platform founding-engineer roles fit."
+anti_examples = [
+  "No-code chatbot builders with no engineering substrate",
+  "Generic AI features bolted onto an unrelated product",
+  "Research-only multi-agent labs requiring a PhD / publication record",
+]
+
+[[domain_worlds]]
+label         = "agentic_b2b_ops_automation"
+definition    = "Companies building AI agents or automation for B2B operational and revenue workflows — order automation, quoting / CPQ, catalog and SKU resolution, procurement, supply-chain operations, sales / RevOps execution, back-office automation. This is the intersection of agent-building and the operator's industrial/distribution/ERP domain, an uncommonly strong pairing: an end-to-end order-automation pipeline (SKU decode -> fuzzy match -> resolve) over a ~10K-SKU distributor catalog plus a production revenue-intelligence platform. Pairs agent engineering with distribution/manufacturing/ERP knowledge most agent engineers lack."
+anti_examples = [
+  "Consumer-facing personal-assistant agents",
+  "Horizontal agent platforms with no B2B-operations vertical",
+  "Pure outbound-sales-spam tooling",
+]
+
+[[domain_worlds]]
+label         = "voice_ai_conversational"
+definition    = "Companies whose product centers on voice AI or conversational agents — ASR/TTS pipelines, voice-agent platforms, telephony-plus-LLM integration, speech normalization and accuracy measurement. The operator's credibility surface: a NATO-phonetic voice-normalization layer, AssemblyAI ASR integration, a self-built WER (word-error-rate) evaluation harness, and Twilio telephony integration (caller-ID validation, TwiML)."
+anti_examples = [
+  "Consumer smart-speaker / home-assistant apps",
+  "Pure speech-linguistics research",
+  "Call-center BPO services with no AI build component",
+]
+
+
+# ─── LEARNING LAYER — references to the labeled-cut substrate ───────────────
+#
+# DATA REFERENCES, NOT MECHANISMS. The mechanisms (writer raises on bad
+# reason; reader filters viability cuts out at the source) live in
+# scripts/lead_cuts.py when that file is built (§6.1 of the redesign doc).
+# This section documents the contract the engine relies on.
+
+[learning_layer]
+cuts_path           = "feedback/lead-cuts.jsonl"
+keeps_substrate     = "feedback/prep-queue.json + sheet status changes"   # per decision 5
+score_log_path      = "feedback/fit-scoring-log.jsonl"
+
+# The fixed reason set — Layer 1 (matcher engine) doesn't read this; the
+# values are reproduced here for audit and as the SPECIFICATION the
+# scripts/lead_cuts.py:FROZEN_REASON_SET must match. The doc's writer-side
+# enforcement (§6.1 tightening) is the mechanism; this is the data contract.
+[learning_layer.reason_set]
+fit_reasons         = ["bad_functional_fit", "wrong_domain", "wrong_seniority", "comp_too_low"]
+circumstance_reasons = ["viability_or_circumstance", "prefers_other_lead", "not_interested_other"]
+
+
+# ─── ENGINE / CONFIG SEPARATION — meta ──────────────────────────────────────
+
+[meta]
+engine_compatibility    = "matcher-engine ^1.0"
+config_format           = "TOML"
+# Per the doc §2: this config is loaded by the engine; the engine does not
+# embed it. Step 1 (this file) is data only. Step 3 (engine v1) plugs into
+# this file as its first config — never the other way around.
+
+
+# ─── SOURCING KEYWORDS — Phase 0: de-hardcoded from scripts/daily_delta.py ─────
+# The user's target-role + domain filters. A different user (e.g. a designer)
+# supplies their own. role_kw/domain_kw = include; role_neg/domain_neg = exclude.
+
+[sourcing]
+role_kw = [
+  "revenue operations",
+  "revops",
+  "sales operations",
+  "sales ops",
+  "gtm ",
+  "go-to-market",
+  "commercial operations",
+  "business operations",
+  "deal desk",
+  "revenue strategy",
+  "sales strategy",
+  "account executive",
+  "account manager",
+  "customer success",
+  "client success",
+  "solutions engineer",
+  "solutions architect",
+  "solutions consultant",
+  "sales engineer",
+  "application engineer",
+  "technical account manager",
+  "forward deployed",
+  "gtm engineer",
+  "growth engineer",
+  "founding gtm",
+  "implementation",
+  "onboarding manager",
+  "product manager",
+  "partner manager",
+  "channel",
+  "value engineer",
+  "ai engineer",
+  "applied ai",
+  "agent engineer",
+  "ai agent",
+  "agentic",
+  "llm engineer",
+  "generative ai",
+  "genai",
+  "conversational ai",
+  "voice ai",
+  "machine learning engineer",
+  "ml engineer",
+  "software engineer",
+  "founding engineer",
+  "member of technical staff",
+  "developer advocate",
+  "developer relations",
+  "platform engineer",
+  "data engineer",
+  "full stack",
+  "fullstack",
+  "backend engineer",
+]
+role_neg = [
+  "sdr",
+  "bdr",
+  "sales development",
+  "business development representative",
+  "intern",
+  "marketing operations",
+  "demand generation",
+  "recruit",
+  "people ops",
+  "research",
+  "designer",
+  "technician",
+  "accountant",
+  "controller",
+  "counsel",
+  "payroll",
+  "scientist",
+  "ads solutions",
+  "ads strategy",
+  "advertising platform",
+  "it solutions engineer",
+  "platform engineering manager",
+  "physical design",
+  "strategic sourcing",
+  "internal audit",
+  "creative director",
+  "head of design",
+  "support partner manager",
+]
+domain_kw = [
+  "manufacturing",
+  "manufacturer",
+  "industrial",
+  "hardware",
+  "cad",
+  "plm",
+  "cam",
+  "additive",
+  "3d printing",
+  "3d-printing",
+  "robot",
+  "iot",
+  "supply chain",
+  "engineering",
+  "mechanical",
+  "machining",
+  "cnc",
+  "automation",
+  "materials",
+  "aerospace",
+  "defense",
+  "energy",
+  "factory",
+  "machine",
+  "physical product",
+  "simulation",
+  "cae",
+  "digital twin",
+  "mes",
+  "plant",
+  "production",
+  "artificial intelligence",
+  " ai ",
+  "ai-",
+  "machine learning",
+  "ml ",
+  "llm",
+  "agent",
+  "applied ai",
+  "saas",
+  "b2b software",
+  "developer",
+  "platform",
+]
+domain_neg = [
+  "cybersecurity",
+  "cyber security",
+  "infosec",
+  "siem",
+  "soc analyst",
+  "threat intel",
+  "penetration",
+  "observability",
+  "fintech",
+  "payments platform",
+  "payroll",
+  "human resources",
+  "recruiting platform",
+  "ad tech",
+  "adtech",
+  "crypto",
+  "blockchain",
+  "ads solutions",
+  "ads strategy",
+  "ads platform",
+  "advertising",
+  "advertiser",
+  "government",
+  "public sector",
+  "pubsec",
+  "federal sales",
+  "aerospace and defense",
+  "aerospace & defense",
+  "defense industry",
+  "defense customer",
+  "defense primes",
+  "federal aerospace",
+  "security clearance",
+  "active clearance",
+  "ts/sci",
+  "secret clearance",
+  "clearance required",
+  "obtain a clearance",
+  "obtain a security clearance",
+  "u.s. citizenship required",
+  "us citizenship required",
+  "itar",
+  "dfars",
+  "cmmc",
+  "nadcap",
+  "as9100",
+  "fedramp",
+  "fci ",
+  "cui ",
+  "dod ",
+  " dod,",
+]
+
+
+# ─── PREP — evidence-retrieval baseline (Phase 0: de-hardcoded from ───────────
+# scripts/prep_pipeline._target_tags_for_role). The user's always-available
+# "lead competency" tags, surfaced for EVERY role as baseline credibility. A
+# builder -> ["builder","applied-ai"]; a pure-salesperson user would set []
+# (no builder injection). A LIGHT signal (kept to 2 tags) so it never crowds the
+# archetype's own evidence. NOT an engine default — user data.
+[prep]
+baseline_retrieval_tags = ["builder", "applied-ai"]
+
+
+# ─── FIT DIMENSIONS — structured label vocab (docs/FIT_STRATEGY_SPINE.md) ─────
+# The deterministic dimensional layer (scripts/fit_dimensions.py) wraps the
+# UNCHANGED judge. Generic patterns (role_archetype, seniority, company_archetype)
+# live in code; the operator-specific bits live here. Domain on/off reuses
+# [sourcing].domain_kw / domain_neg.
+[fit_dimensions]
+# adjacent = function fits but domain is off-thesis -> REACH, never hard-cut.
+adjacent_domain_patterns = 'data ?infra(?:structure)?|observability|data warehouse|analytics platform|developer tool|devtool|api platform|database'
+# off-thesis domains that ALSO screen on domain -> NOT-FIT (no story + they filter).
+off_thesis_screened_patterns = 'fintech|payments|banking|\binsurance\b|hr[- ]?tech|crypto|web3|ad[- ]?tech|martech|cybersecurity|clearance|\bitar\b'
+# Cadence Analytics competitors -> hard NOT-FIT (blocker: competitor).
+competitors = 'gong|clari|people\.ai|setsail|outreach\.io|salesloft|groove|aviso|insightsquared|troops|madkudu'
+# nonrole signals -> NOT-FIT (not a live opening).
+nonrole_patterns = 'talent pool|talent network|general application|evergreen|always hiring|expression of interest'
+# company_archetype signals (attainability). early_founder_led = channel-accessible + intersection-legible.
+early_founder_signals = 'seed|series a\b|pre-seed|\byc\b|y combinator|founding team|early-stage|stealth|<\s*50 employees|small team'
+enterprise_signals = 'fortune 500|publicly traded|\bnyse\b|\bnasdaq\b|10,?000\+|global leader|enterprise leader|founded 1[089]'

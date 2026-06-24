@@ -1,0 +1,27 @@
+{
+  "main_branch": "main",
+  "remote": "origin",
+  "allow_local_commits": false,
+  "test_cmd": "python3 -m pytest -q tests/",
+  "count_regex": "([0-9]+) passed",
+  "collect_cmd": "python3 -m pytest --collect-only -q tests/",
+  "_js_example": {
+    "test_cmd": "npx jest --ci 2>&1",
+    "count_regex": "Tests:.*?([0-9]+) passed",
+    "collect_cmd": "npx jest --listTests"
+  },
+  "migration_patterns": [
+    "prisma migrate",
+    "alembic upgrade",
+    "alembic downgrade",
+    "supabase db push",
+    "supabase db reset",
+    "drizzle-kit push",
+    "drizzle-kit migrate",
+    "rails db:migrate",
+    "manage.py migrate",
+    "flyway migrate",
+    "atlas migrate apply"
+  ],
+  "scope": "Job-search automation (the Alice agent): job ingestion, scoring against kill-criteria/fit, application tailoring, and outreach. Not Cadence Analytics/Ironclad Industrial product work."
+}

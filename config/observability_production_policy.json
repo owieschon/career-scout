@@ -1,0 +1,96 @@
+{
+  "version": "2026-06-03",
+  "service": "alice",
+  "slo": {
+    "telegram_daemon_running": "99.5% measured by 6-hour healthcheck",
+    "observability_healthcheck_success": ">= 99% over trailing 7 days",
+    "llm_canary_delivery": "p95 < 60s including vendor trace export",
+    "critical_error_detection": "Sentry event emitted and remotely readable within 15 minutes",
+    "cost_anomaly_detection": "single-call anomaly logged and Sentry event emitted same turn"
+  },
+  "metrics_backend": {
+    "exporter": "scripts/metrics_http_server.py serves http://127.0.0.1:9108/metrics",
+    "scrape_config": "monitoring/prometheus.yml",
+    "alert_rules": "monitoring/alert_rules.yml",
+    "backend_status": "scrape-ready for local or external Prometheus; no paid backend required"
+  },
+  "alerting": {
+    "fail": [
+      "daemon.deploy_guard",
+      "daemon.launchd_tracing",
+      "infra.telegram_running",
+      "infra.telegram_tracing_env",
+      "infra.telegram_restart_count",
+      "infra.telegram_memory",
+      "infra.telegram_cpu",
+      "infra.telegram_uptime",
+      "infra.repo_disk_free",
+      "phoenix.http",
+      "sentry.canary",
+      "telemetry.bootstrap",
+      "llm.canary",
+      "local.cost_log",
+      "local.prediction_span",
+      "phoenix.span_delivery",
+      "langsmith.span_delivery",
+      "sentry.remote_readback",
+      "posthog.product_analytics"
+    ],
+    "warn_until_configured": [],
+    "page_target": "Sentry issue alice.observability.healthcheck_failed plus alert_routing routes",
+    "external_routes": [
+      "ALICE_ALERT_WEBHOOK_URL for generic JSON webhook",
+      "ALICE_ALERT_TELEGRAM_CHAT_ID with TELEGRAM_BOT_TOKEN for Telegram alerts",
+      "state/observability/alerts.jsonl local audit route"
+    ],
+    "runbook": "docs/observability/PRODUCTION_STANDARD.md"
+  },
+  "evals": {
+    "dataset_summary": "state/observability/eval-summary.json",
+    "judged_eval": "state/observability/judged-eval.json",
+    "behavior_regression": "state/observability/behavior-regression.json",
+    "enterprise_readiness": "state/observability/enterprise-readiness.json",
+    "audit_evidence": "state/observability/audit-evidence.json",
+    "escalation_policy": "state/observability/escalation-policy.json",
+    "enable_flag": "ALICE_JUDGED_EVAL=1",
+    "behavior_enable_flag": "ALICE_BEHAVIOR_REGRESSION=1",
+    "max_cases_flag": "ALICE_JUDGED_EVAL_MAX_CASES",
+    "behavior_max_cases_flag": "ALICE_BEHAVIOR_REGRESSION_MAX_CASES",
+    "budget_policy": "cheap judge/model path; case caps configurable; every call lands in feedback/time-cost-log.jsonl"
+  },
+  "retention": {
+    "feedback/telegram-history.jsonl": "30 days target; raw user text, local only",
+    "feedback/time-cost-log.jsonl": "180 days target; no prompt/response body",
+    "feedback/prediction-spans.jsonl": "180 days target; trace ids only",
+    "feedback/paste-buffer.log": "30 days target; no raw paste body",
+    "state/grounding_flags_fallback.jsonl": "90 days target",
+    "vendor_sentry": "project setting; scrubbed, no default PII",
+    "vendor_phoenix_local": "local database; content attrs controlled by ALICE_TRACE_CONTENT",
+    "vendor_langsmith": "metadata/span attrs; content attrs controlled by ALICE_TRACE_CONTENT",
+    "vendor_posthog": "event names and sanitized metadata only"
+  },
+  "privacy": {
+    "posthog_raw_text_allowed": false,
+    "sentry_send_default_pii": false,
+    "trace_content_default": "controlled by ALICE_TRACE_CONTENT",
+    "secret_values_in_healthcheck_output": false
+  },
+  "enterprise_readiness": {
+    "local_single_user_target": "10/10 with all required artifacts fresh, behavior regression passing, remote readbacks live, and audit evidence present",
+    "multi_user_saas_target": "external_required until RBAC/SSO, tenant isolation, hosted metrics, paid paging, and larger labeled eval coverage exist",
+    "gate": "scripts/observability_healthcheck.py requires state/observability/enterprise-readiness.json local_status=pass"
+  },
+  "thresholds": {
+    "telegram_max_rss_mb": 750,
+    "telegram_max_cpu_pct": 80,
+    "telegram_max_runs": 25,
+    "repo_min_disk_free_gb": 2,
+    "telegram_min_uptime_seconds": 20
+  },
+  "not_enterprise_complete_without": [
+    "Multi-user RBAC/SSO/SAML and tenant isolation if Alice becomes a shared SaaS product",
+    "Hosted Prometheus/Grafana or Datadog for always-on charts outside the operator's machine",
+    "Paid paging escalation if the operator wants team on-call rotations beyond Telegram/webhook/Sentry",
+    "Larger labeled transcript eval suite before claiming population-level model quality"
+  ]
+}

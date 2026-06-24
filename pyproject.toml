@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "alice-agent"
+version = "0.1.0"
+description = "Alice — a job-search sourcing and screening engine (public engine only; personal data stays local)."
+readme = "README.md"
+requires-python = ">=3.11"          # tomllib is used directly; stdlib only from 3.11
+license = { text = "Proprietary" }
+authors = [{ name = "Owen Schoeniger" }]
+
+# Runtime dependencies imported by the engine. The LLM is called over stdlib
+# urllib (no LLM SDK); the only ledger backend that needs an SDK (Supabase) is an
+# optional extra below.
+dependencies = [
+    "pydantic>=2",            # config/profile schema validation
+    "gspread>=6",             # Google Sheets ledger I/O
+    "google-auth>=2",         # service-account credentials for gspread
+    "python-telegram-bot>=21", # Telegram notify/intake bot
+    "grpcio>=1.60",           # imported directly by the telemetry path
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+]
+# The Supabase Postgres ledger backend (scripts/supabase_ledger.py) imports this
+# lazily, so the rest of the engine and the test suite run without it. Install
+# this extra to use the Postgres backend.
+supabase = [
+    "supabase>=2",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"alice.persistence" = ["sql/*.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

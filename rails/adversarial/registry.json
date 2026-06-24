@@ -1,0 +1,10 @@
+{
+  "last_proven_fingerprint": "775eb31f06106ca603f64e3474e7c215faf1763d0ad52db31755cc720f047f4c",
+  "run_id": "20260610T010933Z",
+  "stamped_by": "run_eval.sh (full pass)",
+  "environment": {
+    "python": "3.14",
+    "bash": "3.2",
+    "claude_code": "2.1.170 (Claude Code)"
+  }
+}

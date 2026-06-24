@@ -1,0 +1,10 @@
+# Load-bearing tests: one repo-relative path per line.
+# Files listed here are NOT agent-editable (guard_files.py enforces it), and
+# the verifier confirms they were collected and ran BY NAME on every run.
+#
+# Only the human adds entries here. Promoting a test to load-bearing is a
+# judgment call (Section 5), and the agent must never control which checks
+# gate its own work (Section 6).
+#
+# Example:
+# tests/test_fact_gate.py

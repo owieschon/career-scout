@@ -1,0 +1,71 @@
+# Profile archetypes — cold-start presets for Phase 2 intake.
+#
+# An archetype SEEDS a new user's profile so onboarding has a sane starting
+# shape before any of the user's own material is read. It is NOT ground truth.
+# Every field an archetype supplies is recorded with provenance "archetype" and
+# is shown to the user for confirmation — the user can accept or correct each
+# one. Nothing here becomes a fact the engine acts on until the user confirms.
+#
+# Archetypes intentionally DO NOT set identity (name/contact) or the location/
+# travel gates — those are person-specific and must come from the user, never a
+# preset. An archetype seeds: seniority, the functional gradient, the comp band,
+# and a relevant SUBSET of domain worlds drawn from the same world catalog the
+# engine scores against (config/fit_model.toml).
+#
+# Domain-world definitions are referenced by `label` here for brevity; intake
+# resolves each label against the canonical world catalog so definitions and
+# anti_examples stay single-sourced. A label with no catalog match is dropped
+# loudly at load (fail-closed — a typo must not silently seed an empty world).
+
+[revops_operator]
+display_name = "RevOps / Sales-Ops operator"
+summary      = "Owns revenue operations infrastructure: CRM, pipelines, forecasting, GTM analytics, sales-tech stack."
+seniority    = ["mid_senior_ic", "first_line_manager"]
+comp_threshold_usd = 110000
+comp_hard_floor_usd = 75000
+# functional gradient: bridge (c) and commercial-fluent (a) high; pure-build (b) lower
+functional_buckets = { a = 0.8, c = 1.0, b = 0.6 }
+combinatoric_emphasis = 0.6
+adjacency_coverage    = 0.6
+fit_weight   = 0.6
+value_weight = 0.4
+domain_worlds = ["revops_systems_data", "erp_crm_cli_data_fluency", "technical_account_mgmt"]
+
+[ai_engineer]
+display_name = "AI / forward-deployed engineer"
+summary      = "Builds production ML + full-stack at AI-native companies; founding-engineer, applied-AI, FDE roles where one builder shapes the product."
+seniority    = ["mid_senior_ic", "founding_role"]
+comp_threshold_usd = 140000
+comp_hard_floor_usd = 90000
+functional_buckets = { a = 0.7, c = 0.9, b = 1.0 }
+combinatoric_emphasis = 0.8
+adjacency_coverage    = 0.7
+fit_weight   = 0.6
+value_weight = 0.4
+domain_worlds = ["self_taught_ml_fullstack", "ai_observability_eval", "technical_account_mgmt"]
+
+[senior_ae]
+display_name = "Senior / Founding AE"
+summary      = "Owns the customer and revenue relationship in technical B2B; senior account executive or founding AE at a growth-stage company."
+seniority    = ["mid_senior_ic", "founding_role"]
+comp_threshold_usd = 130000
+comp_hard_floor_usd = 85000
+functional_buckets = { a = 1.0, c = 0.9, b = 0.4 }
+combinatoric_emphasis = 0.5
+adjacency_coverage    = 0.6
+fit_weight   = 0.6
+value_weight = 0.4
+domain_worlds = ["technical_account_mgmt", "buyer_side_empathy_industrial", "industrial_manufacturing"]
+
+[tam_cs]
+display_name = "TAM / Senior CS / Implementation"
+summary      = "Owns a technical customer relationship post-sale: QBRs, deployment, expansion; technical account manager, senior CSM, implementation engineer."
+seniority    = ["mid_senior_ic", "first_line_manager"]
+comp_threshold_usd = 115000
+comp_hard_floor_usd = 80000
+functional_buckets = { a = 1.0, c = 1.0, b = 0.6 }
+combinatoric_emphasis = 0.6
+adjacency_coverage    = 0.6
+fit_weight   = 0.65
+value_weight = 0.35
+domain_worlds = ["technical_account_mgmt", "self_taught_ml_fullstack", "erp_crm_cli_data_fluency"]
