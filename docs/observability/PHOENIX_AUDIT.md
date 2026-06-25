@@ -1,6 +1,6 @@
 # Phoenix Observability Audit — Alice
 
-**Scope:** Read-only audit of Alice (the job-search agent at `~/Desktop/job-search`) mapping where Arize Phoenix (open-source, OpenTelemetry-native AI observability + evaluation) would add real value. Cadence Analytics is explicitly out of scope. No Alice code, prompts, or config were modified; the only artifact produced is this document.
+**Scope:** Read-only audit of Alice (the job-search agent) mapping where Arize Phoenix (open-source, OpenTelemetry-native AI observability + evaluation) would add real value. No Alice code, prompts, or config were modified; the only artifact produced is this document.
 
 **Method:** Grounded in direct reads of the real codebase (Python in `scripts/`; an early assumption of a JS `agent/` layout was wrong and corrected against the tree). Every architectural claim cites a real file:line or live DB/log state. Phoenix capabilities were verified against `arize.com/docs/phoenix` where it matters; unverified claims are flagged.
 
@@ -21,7 +21,7 @@
 ### 1. Runtime & invocation model
 
 - **Runtime:** Python, pinned to CPython 3.14 at an absolute interpreter path (`run_daily.py:19`, `run_daily.sh:7`). Deps: `python-telegram-bot` (`telegram_bot.py:45`), Google Sheets via `gspread`/service account (`ledger.py:92-111`), optional `sentry_sdk` (`obs.py:26`). Anthropic via raw HTTPS, **no SDK**.
-- **Three launchd entry points** (in `~/Library/LaunchAgents/`, **outside the repo / not version-controlled**):
+- **Three launchd entry points** (in `<launch-agents-dir>/`, **outside the repo / not version-controlled**):
   | Plist | Program | Schedule | Type |
   |---|---|---|---|
   | `com.jordan.jobsearch.plist` | `python3 scripts/run_daily.py` | daily 11:45 | **one-shot batch** |
@@ -29,7 +29,7 @@
   | `com.jordan.jobsearch.weekly.plist` | `/bin/bash scripts/run_weekly.sh` | Fri 16:00 | **one-shot batch** |
 - **Daily run = one-shot, 14 sequential steps** via `run_step()` spawning each as an isolated `subprocess.run(..., timeout=600)` (`run_daily.py:29-48`, sequence `51-119`): snapshot → (Sat: discover) → imap_reply → focus auto-drop → triage_observations → prep_materials → interview_prep → debrief → draft_outreach → negotiation_prep → morning_reminder → confirm_and_execute → daily_delta (sources + sends digest) → readiness_check → snapshot. Each subprocess is independent; **nothing identifies "this is run N"** to the 14 children.
 - **Interactive = multi-turn** telegram bot (`telegram_bot.py`, `app.run_polling`). The only conversational surface; history reconstructed by reading the last N lines of `telegram-history.jsonl` (`telegram_bot.py:157`), the operator-turns-only after the contamination fix.
-- **Operational notes worth flagging (out of Phoenix scope, found in passing):** the weekly scorecard is currently **broken at launchd** — `/bin/bash` hits a macOS TCC "Operation not permitted" reading `~/Desktop` (`daily/weekly-stderr.log`); only the daily runner was ported to `python3` (which has Full Disk Access). The telegram daemon is also running **5 commits stale** right now (`deploy_guard` logs in `daily/telegram-bot.err`), and `telegram_chat` blew its $5 tripwire at ~$6.79/day (see §9).
+- **Failure modes the tracing is designed to surface (out of Phoenix scope, noted as motivation):** the launchd surface has a class of silent failures that are invisible without execution tracing — e.g. a bash-launched step hitting a macOS TCC ("Operation not permitted") file-access denial where the python-launched equivalent (with Full Disk Access) succeeds, a daemon drifting behind the committed code, and per-turn cost overshooting its configured tripwire. These are exactly the kinds of operational drift that a per-step trace makes immediately legible (see §9).
 
 ### 2. LLM call sites
 
@@ -94,7 +94,7 @@
 ### 9. Context management
 
 - **No token budgeting.** Only guardrails are dollar caps (post-hoc accounting, never gates) and ad-hoc char-slicing for Telegram size limits. There is no `_truncate` helper and no `max_input_tokens`.
-- **Measured bloat:** a single `telegram_chat` turn logged **`in_tokens: 121560`** (`time-cost-log.jsonl`, 2026-05-30T11:53) — `read_sheet` returns the whole sheet as a tool result, which then **rides along in `payload["messages"]` on every subsequent roundtrip** (`llm.py:657-658`), uncapped. Compounded by `load_alice_brief` inlining ~70 KB of markdown on every call. This is *the* cause of the `telegram_chat` cost overrun ($6.79/day vs $5 tripwire) — and it is currently invisible per-component. Tracing surfaces it immediately.
+- **Measured bloat (the mechanism, not a live bill):** a single `telegram_chat` turn can balloon to a six-figure prompt-token count — `read_sheet` returns the whole sheet as a tool result, which then **rides along in `payload["messages"]` on every subsequent roundtrip** (`llm.py:657-658`), uncapped. Compounded by `load_alice_brief` inlining ~70 KB of markdown on every call. This is *the* mechanism behind `telegram_chat` cost overruns past the configured per-turn tripwire — and it is currently invisible per-component. Tracing surfaces it immediately.
 
 ---
 
@@ -124,7 +124,7 @@
 
 **Wrap the one chokepoint with a manual span.** Because every call routes through `llm.call` (`llm.py:499`), one `with tracer.start_as_current_span(...)` around its body produces a complete end-to-end trace of an entire Alice run — prompt, system, model, per-roundtrip tool calls, tokens, latency, cost — with **zero changes to the ~20 call sites.** (The auto-instrument one-liner does **not** apply: no SDK to patch.)
 
-What it lets you see that you can't today: the full prompt+response of *every* step (not just the last), the tool loop inside `call()`, and — critically — the per-call token breakdown that exposes the 121 K-token sheet-in-context blowup (§9).
+What it lets you see that you can't today: the full prompt+response of *every* step (not just the last), the tool loop inside `call()`, and — critically — the per-call token breakdown that exposes the sheet-in-context token blowup (§9).
 
 #### Proposed instrumentation diff (PROPOSED ONLY — not applied)
 
@@ -200,7 +200,7 @@ Dependencies (proposed, install separately): `pip install arize-phoenix-otel` (+
 
 ### Remaining as-is opportunities (ranked by value-to-effort)
 
-1. **Per-step token/cost breakdown (free with step 1).** Immediately localizes the 121 K-token `telegram_chat` blowup to `read_sheet` results resent every roundtrip (§9) — the direct cause of the $5→$6.79 tripwire. **Effort: zero.**
+1. **Per-step token/cost breakdown (free with step 1).** Immediately localizes the `telegram_chat` token blowup to `read_sheet` results resent every roundtrip (§9) — the direct cause of the per-turn cost overrun. **Effort: zero.**
 2. **Tool selection / parameter visibility (free).** Records the 24-tool dispatch loop — e.g. did `mark_role_status` get the right row/status. **Effort: zero.**
 3. **Historical, any-run prompt/replay debug.** Replaces "read `full-prompt-last.txt` for the *last* failure" with "open the trace for *any* past run." Generalizes the `feedback_full_prompt_capture_pattern` to all calls and all history. **Effort: zero beyond step 1.**
 4. **Manual spans around GROUND→WRITE→VERIFY→ASSEMBLE** (`prep_pipeline`, mirrored in `verify-log.jsonl`) — a readable span tree with gate verdicts as attributes. **Effort: low.**
@@ -271,12 +271,12 @@ This roadmap is a **chain of checkpoints**, not a single deliverable. Each check
 - **Scope:** manual OpenInference span at the single chokepoint `llm.call` (no SDK to auto-instrument), redaction from line one, local self-hosted Phoenix only.
 - **Entry:** readiness gate green (`docs/diagnostics/READINESS_AUDIT_2026-05-30.md`). ✅
 - **DoD:** patch verified against the live tree; fail-safes confirmed (OFF ⇒ byte-identical; ON-no-collector ⇒ graceful no-op); results written into the implementation note; **uncommitted pending the operator.**
-- **Exit gate → CP2:** (1) the operator OKs the Part A commit; (2) enabling tracing + capturing the live 121K baseline is **the operator-greenlight** (paid Anthropic calls on the live daemon; requires `ALICE_TRACING=1` + local `phoenix serve` + launchd restart discipline). The DoD deliberately stops *before* this line.
+- **Exit gate → CP2:** (1) the operator OKs the Part A commit; (2) enabling tracing + capturing a live token-cost baseline is **the operator-greenlight** (paid Anthropic calls on the live daemon; requires `ALICE_TRACING=1` + local `phoenix serve` + launchd restart discipline). The DoD deliberately stops *before* this line.
 
-**CP2 — read_sheet cost fix** *(spec: `~/Downloads/files (6)/alice-read_sheet-fix-spec.md`)*
-- **Why before evals:** a judge-eval runs an LLM on every turn; turning that on *before* fixing the leak multiplies a turn already over its $5/day tripwire (the 121K-token `read_sheet` payload re-riding every roundtrip). Cost ordering is a real dependency, not a preference.
+**CP2 — read_sheet cost fix**
+- **Why before evals:** a judge-eval runs an LLM on every turn; turning that on *before* fixing the leak multiplies a turn already over its per-turn tripwire (the oversized `read_sheet` payload re-riding every roundtrip). Cost ordering is a real dependency, not a preference.
 - **Entry:** CP1 committed **and** baseline trace captured (so the fix has a before-number).
-- **DoD:** projection/slim fix proposed → reviewed → applied; after-trace shows the prompt-token drop recorded next to the 121K baseline; chat answers unchanged in substance on a couple of representative turns.
+- **DoD:** projection/slim fix proposed → reviewed → applied; after-trace shows the prompt-token drop recorded next to the captured baseline; chat answers unchanged in substance on a couple of representative turns.
 - **Exit gate → CP3:** the operator OKs; tracing confirmed live and cheap.
 
 **CP3 — judge-evals + capture flywheel (B0 ids + B3 outcome annotations)** — *the bulk of the "more," and all of it buildable now*
@@ -311,4 +311,4 @@ Land **CP1** (it pays for itself on the next debug *and* localizes the cost over
 - An early assumption of a JS `agent/orchestrator.js` was **wrong and corrected against the real tree** (Alice is Python in `scripts/`). The first draft of this report inherited two further memory-shaped errors that grounded reads then corrected: (a) it assumed the Anthropic **SDK** with an auto-instrument one-liner — reality is raw `urllib`, so instrumentation must be manual; (b) it mis-described `pipeline.db` tables — the real schema is `opportunities`/`conversations`/`daily_stats`/`sourcing_log`/`seen_jobs`. All findings above are from direct reads.
 - Critical absences proven, not inferred: no `anthropic` import (0 hits); session/trace ids = 0 (only `sourcing_log.run_id` exists); `opportunities.stage`/`date_applied` writers = 0; `opportunities` rows all `scored`/`parked` with NULL dates (live query); no `_redact` anywhere.
 - Phoenix claims marked ◻️/⚠️ in Phase 2 should be re-verified against the installed Phoenix version before implementation; ✅ claims were checked against `arize.com/docs/phoenix` during this audit.
-- Out-of-scope operational issues surfaced in passing (not Phoenix, but worth the operator's attention): weekly scorecard broken at launchd (bash TCC denial); daemon 5 commits stale; `telegram_chat` over its $5/day tripwire; `readiness_check` self-reports NOT READY (26 silent failures, 1 unauthorized-write attempt in 30 days); launchd plists live outside version control.
+- Out-of-scope failure classes the tracing is designed to surface (not Phoenix itself, noted as motivation): launchd steps that fail silently on file-access (TCC) denials; a daemon drifting behind the committed code; per-turn cost overshooting its configured tripwire; a readiness self-check that can report NOT READY because of silent failures and unauthorized-write attempts that are otherwise invisible; launchd plists living outside version control. The point for this audit: execution tracing makes these legible where today they are not.
