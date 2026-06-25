@@ -1,80 +1,63 @@
-# Alice — a fail-closed job-search agent
+# Alice
 
-When you're job-hunting under hard constraints — I can't relocate, I can't take
-travel-heavy roles right now — the most expensive mistake an agent can make is a
-confident *"this one fits"* on a job that was never geographically or logistically
-viable. You read it, you tailor a résumé, you apply. The cost lands on the one
-resource a job search can't get back: your time.
+You're job-hunting under a hard constraint — *I can't relocate, I can't take a travel-heavy role right now* — and the most expensive mistake an agent can make isn't missing a good job. It's a confident **"this one fits"** on a role that was never viable: you read it, tailor a résumé, apply, and the cost lands on the one thing a job search can't get back — your time.
 
-So I built Alice around a rule I won't let the model break: **the location and
-travel gate runs before the model, and an LLM reply it can't parse resolves to
-NOT-FIT, never FIT.** The verdict that wastes my time can't be authored by a
-drifting prompt or a malformed response. The model gets a vote on the roles that
-are already viable — never the kill decision on the ones that aren't.
+**Alice sources listings, screens them under that constraint, and hands back a short, explained list plus drafted application materials** — built so the verdict that wastes your time can't be authored by a drifting prompt or a malformed model reply. It's a single-operator agent: one person's search, one person's calibration, encoded as data. The location/travel kill happens in deterministic code *before* any model runs; the LLM only gets a vote on roles that already cleared viability.
 
-That's the whole stance: an unreliable LLM is one tested, fail-closed stage
-inside a deterministic pipeline, never the engine that decides which roles are
-worth my time.
+> Public, sanitized copy of a tool actually run on a daily schedule. The persona it screens for — "Jordan Avery" — and the experience corpus it matches against are **synthetic**; the example data describes no real person. All rights reserved, published for review (see [`LICENSE`](LICENSE)).
 
 ## How it screens
 
-Alice pulls new listings, then spends compute in increasing order of cost. Cheap
-deterministic gates reject the bulk of them; the LLM fit-judge only ever scores
-what survives.
+Listings come in from public job APIs and ATS boards. Alice spends compute in increasing order of cost: cheap deterministic gates reject the bulk of every run with no model call, and the LLM fit-judge only ever scores what survives.
 
 ```
- listings          deterministic gates          model            output
- ────────          (reject most, no LLM)         ─────            ──────
- Remotive          keyword / role / remote-US    fit-judge        ranked, explained
- RemoteOK     ───► location / travel        ───► reads a TOML ──► shortlist
- Jobicy            (runs BEFORE the model)       rubric →         + drafted materials
- Himalayas              │                        FIT/NOT-FIT/REACH
- HN who's-hiring        ▼                        (unparseable
- Greenhouse/        gate-survivors only           → NOT-FIT)
- Lever/Ashby
+ SOURCES                  DETERMINISTIC GATES                MODEL                 OUTPUT
+ (public, real)           (reject most — no LLM)             (survivors only)      ──────
+ ──────────────           ───────────────────────           ──────────────
+ Remotive                 role / archetype                   fit-judge reads       ranked,
+ RemoteOK         ──────► domain (mfg / AI / SaaS)   ──────► config/fit_model      explained
+ Jobicy                   travel (negation-aware)            .toml → one           shortlist
+ Himalayas                location / residence / RTO         holistic verdict      + drafted
+ HN who's-hiring          ───────────► location_gate         FIT / NOT-FIT /       materials
+ Greenhouse / Lever /     RUNS BEFORE THE MODEL              REACH
+ Ashby ATS boards              │                             (unparseable
+ (curated + auto-grown)        ▼                              → NOT-FIT)
+                          gate survivors only
 ```
 
-The fit logic is code that *reads* a versioned rubric (`config/fit_model.toml`):
-the persona's target worlds, comp band, and seniority are data, not engine. Every
-model call goes through one chokepoint (`src/alice/llm/llm.py`) — stdlib `urllib`,
-no LLM SDK — which pins a model per task, appends every call's token cost to a
-JSONL log, and warns past a soft `$2/day` / `$14/week` budget. A mutating tool
-can't even register without a guard; that's checked at import, not at runtime.
+**The kill decision is deterministic, and it runs first.** `location_gate.py`'s `location_travel_gate(...)` is called inside `fit_judge.judge_listing()` *before* the model — a `kill` short-circuits the LLM entirely. The gate reads the JD **body** for an explicit requirement (relocation, days-in-office/RTO, residence area, non-US-only, travel ≥10%), never a bare city label, and is deliberately conservative: anything ambiguous returns `reach_flag` or `ok`, never a silent kill. This is a reversal of an earlier design that lived inside the LLM prompt — pulled out because an entangled prompt drifted on location every time the surrounding prose changed (three destabilization incidents in one session; see [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md)).
 
-Reporting is analytical SQL (CTEs, conditional aggregation, a window function),
-unit-tested against SQLite and shipped as RLS-aware Postgres views (denied by
-default, scoped per user). The ledger is a thin router over three backends —
-Sheets, Supabase, or dual-write — so where results land is a config flag, not a
-rewrite.
+**The model votes; it never authors the kill.** The fit-judge reads the rubric and the JD body and emits one of `FIT` / `NOT-FIT` / `REACH`. Its system prompt is built entirely from the TOML — the persona's domain worlds, functional-fit gradient, seniority targets, and comp composite are *data*, never engine code. Crucially, the parser **fail-closes**: an unparseable judge reply resolves to `NOT-FIT` with constraint `parse_error`, and any LLM error (including a missing API key) resolves to `NOT-FIT` with `judge_error`. A malformed response can cost you a missed role; it can never cost you a wasted application.
+
+**The rubric is versioned data, not engine.** `fit_judge.py` is pure engine; `config/fit_model.toml` (`version = "operator-v3"`) holds the worlds, gates, weights, and comp band. Tuning the search means editing the TOML — the judge logs the config version with every verdict for audit and reproducibility.
+
+**One LLM chokepoint.** Every model call goes through `llm.py` — stdlib `urllib`, no vendor SDK. It pins a model per task across three tiers (Haiku for cheap conversational paths, Sonnet for synthesis, Opus for résumé/cover drafts and the adversarial critic; the fit-judge itself runs on `gemini-2.5-flash` via OpenRouter), appends every call's token cost to an append-only JSONL log, and fires a soft tripwire past a **$2/day / $14/week** budget. Tool-result text from the model loop is run through a prompt-injection annotator, and the roundtrip cap fails loud rather than looping.
+
+**A mutating tool can't register without a guard** — `register_tool(..., mutating=True, guard=None)` raises at *import*, not at runtime, and `tests/test_tool_guard_invariant.py` keeps that invariant in CI.
+
+**Reporting is analytical SQL.** Pipeline funnel, company-suppression, judge-drift, and status-transition reporting are expressed as CTEs, conditional aggregation (`count(*) filter (...)`), and a `lead() over (partition by ...)` window function in `reporting.py`, unit-tested against SQLite, and shipped as Postgres views declared `WITH (security_invoker = true)` so a tenant's RLS policies still apply — an aggregate over *only* its own rows, never across tenants.
+
+Downstream, `prep_pipeline.py` drafts application materials through an explicit `GROUND → WRITE → VERIFY → ASSEMBLE` pass that won't emit a claim it can't ground in the source. Persistence is a thin router over three ledger backends — Supabase (canonical), Google Sheets (legacy bridge), or dual-write — so where results land is a config flag, not a rewrite.
 
 ## Run it
 
-The repo is the engine. The test suite is hermetic — no network, secrets, or
-database — so a fresh clone shows the pipeline working:
+The test suite is hermetic — no network, no secrets, no database — so a fresh clone shows the pipeline working:
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest        # over 400 tests; fail-closed paths, ledger router, and SQL are covered
+pytest        # 412 passing — fail-closed paths, the location gate, the ledger router, and the SQL are all covered
 ```
 
-Running it live (real sourcing, a real ledger, a real digest) needs an LLM key
-and ledger/notifier credentials from the environment. Those are not in the repo.
+Running it live (real sourcing, a real ledger, a real digest) needs an LLM key and ledger/notifier credentials from the environment. Those are not in the repo.
 
-## What's here
+## Eval discipline
 
-Sources are real: Remotive, RemoteOK, Jobicy, Himalayas, HN who's-hiring, plus
-Greenhouse / Lever / Ashby ATS boards. Downstream, `prep_pipeline.py` drafts
-application materials through an explicit `GROUND → WRITE → VERIFY → ASSEMBLE`
-pass that won't emit a claim it can't ground in the source.
+The judge is checked against an **adversarial harness** (`src/alice/harness/adversarial.py`) that deliberately tries to make Alice break her brief — fabricate a comp datum she doesn't have, auto-apply a subtractive filter without approval, or follow a prompt-injection input — with each case asserting on what *failure* looks like. The location gate is exercised by `tests/test_location_gate.py`, travel negation by `tests/test_travel_negation.py`, and the fail-closed verdict path by `tests/test_fit_judge.py`.
 
-Public, sanitized version of a tool I actually run: the persona it screens for
-("Jordan Avery") and its experience corpus are synthetic, so the example data
-describes no real person. All rights reserved — published for review, not reuse
-(see `LICENSE`).
+## Where to look first
 
-The design reasoning is in [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) and
-[`docs/FIT_STRATEGY_SPINE.md`](docs/FIT_STRATEGY_SPINE.md); the funnel in
-[`docs/SOURCING_MATCHER_REDESIGN.md`](docs/SOURCING_MATCHER_REDESIGN.md). The
-honest current-state assessment — including the one persistence seam I kept on
-purpose — is in [`AUDIT.md`](AUDIT.md).
+- [`docs/SOURCING_MATCHER_REDESIGN.md`](docs/SOURCING_MATCHER_REDESIGN.md) — the funnel: cost-layering, the engine/config split, the keyword-not-in-prompt guard.
+- [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) — why location moved out of the LLM prompt into a deterministic pre-gate, and the alternatives rejected.
+- `src/alice/pipeline/location_gate.py` + `src/alice/pipeline/fit_judge.py` — the gate, the chokepoint order, and the fail-closed parser.
+- [`AUDIT.md`](AUDIT.md) — an honest current-state assessment, including the one persistence seam left deliberately for a reviewed pass.
