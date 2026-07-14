@@ -1,7 +1,7 @@
 # Phoenix Observability Audit — Alice
 
 <!-- clean-docs:purpose -->
-**Scope:** Read-only audit of Alice (the job-search agent) mapping where Arize Phoenix (open-source, OpenTelemetry-native AI observability + evaluation) would add real value. No Alice code, prompts, or config were modified; the only artifact produced is this document. Read this page before changing or relying on Phoenix Observability Audit — Alice so you can preserve its documented constraints and verify the result against the repository.
+**Scope:** Read-only audit of Alice (the job-search agent) mapping where Arize Phoenix (open-source, OpenTelemetry-native AI observability + evaluation) would add real value. No Alice code, prompts, or config were modified; the only artifact produced is this document.
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow audience reason="This page documents agent behavior as its subject; it addresses maintainers and evaluators rather than handing work to a future agent" -->
 <!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->

@@ -1,7 +1,7 @@
 # Codebase audit
 
 <!-- clean-docs:purpose -->
-An honest assessment of this repository: what it is, what is strong, and what would change to make a senior engineer respect it. Written so a reviewer who has never seen the code can calibrate quickly. Read this page before changing or relying on Codebase audit so you can preserve its documented constraints and verify the result against the repository.
+An honest assessment of this repository: what it is, what is strong, and what would change to make a senior engineer respect it. Written so a reviewer who has never seen the code can calibrate quickly.
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow doc-length reason="The Codebase audit reader path stays in one file because splitting it would separate its operating context from its verification material" -->
 <!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->

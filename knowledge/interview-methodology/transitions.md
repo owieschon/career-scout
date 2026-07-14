@@ -1,7 +1,7 @@
 # Employment transitions — the "why did you leave?" narratives
 
 <!-- clean-docs:purpose -->
-Interview-prep grounding for the job-change story. **Interview-prep ONLY — never render any of this on a résumé or in a cover letter.** These are clean, honest, externally-verifiable answers to the screen-stage "why did you leave / why so short?" question. Read this page before changing or relying on Employment transitions — the "why did you leave?" narratives so you can preserve its documented constraints and verify the result against the repository.
+Interview-prep grounding for the job-change story. **Interview-prep ONLY — never render any of this on a résumé or in a cover letter.** These are clean, honest, externally-verifiable answers to the screen-stage "why did you leave / why so short?" question.
 <!-- clean-docs:end purpose -->
 
 

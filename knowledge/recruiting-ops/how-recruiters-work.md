@@ -1,7 +1,7 @@
 # How Recruiters Actually Work
 
 <!-- clean-docs:purpose -->
-*Notes from inside the recruiting function. Most candidates misread the incentives and the workload, which is why their outreach gets ignored and their applications die in the queue. This document explains what a recruiter's day actually looks like, who they prioritize, and why.* Read this page before changing or relying on How Recruiters Actually Work so you can preserve its documented constraints and verify the result against the repository.
+*Notes from inside the recruiting function. Most candidates misread the incentives and the workload, which is why their outreach gets ignored and their applications die in the queue. This document explains what a recruiter's day actually looks like, who they prioritize, and why.*
 <!-- clean-docs:end purpose -->
 
 

@@ -1,7 +1,7 @@
 # Alice's Recruiting Knowledge Base
 
 <!-- clean-docs:purpose -->
-Alice is the operator persona's job-search assistant. To advise the operator well, she needs insider knowledge about how hiring actually works from the employer side, recruiters, ATSes, hiring managers, comp, referrals, AI screening, and the current market. Read this page before changing or relying on Alice's Recruiting Knowledge Base so you can preserve its documented constraints and verify the result against the repository.
+Alice is the operator persona's job-search assistant. To advise the operator well, she needs insider knowledge about how hiring actually works from the employer side, recruiters, ATSes, hiring managers, comp, referrals, AI screening, and the current market.
 <!-- clean-docs:end purpose -->
 
 

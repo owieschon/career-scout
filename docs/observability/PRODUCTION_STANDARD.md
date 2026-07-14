@@ -1,7 +1,7 @@
 # Alice Production Observability Standard
 
 <!-- clean-docs:purpose -->
-Status: production-grade local observability baseline, updated 2026-06-03. Read this page before changing or relying on Alice Production Observability Standard so you can preserve its documented constraints and verify the result against the repository.
+Status: production-grade local observability baseline, updated 2026-06-03.
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 <!-- clean-docs:allow doc-length reason="This canonical contract stays in one file so its definitions, constraints, and verification criteria remain reviewable together" -->

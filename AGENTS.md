@@ -1,7 +1,7 @@
 # Contributing / working in this repo
 
 <!-- clean-docs:purpose -->
-A short orientation for a human or agent making changes here. Read this page before changing or relying on Contributing / working in this repo so you can preserve its documented constraints and verify the result against the repository.
+A short orientation for a human or agent making changes here.
 <!-- clean-docs:end purpose -->
 
 

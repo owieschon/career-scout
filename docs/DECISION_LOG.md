@@ -1,7 +1,7 @@
 # Decision Log
 
 <!-- clean-docs:purpose -->
-Non-trivial design decisions with the reasoning + the alternatives rejected. Newest first. Read this page before changing or relying on Decision Log so you can preserve its documented constraints and verify the result against the repository.
+Non-trivial design decisions with the reasoning + the alternatives rejected. Newest first.
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 

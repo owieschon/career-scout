@@ -1,7 +1,7 @@
 # Comp From the Employer Side
 
 <!-- clean-docs:purpose -->
-*Most candidates negotiate against a model of comp that doesn't match how the company actually sets, approves, and flexes the offer. This document covers what's really happening on the other side of the table: where the bands come from, who can override them, and where real use actually exists.* Read this page before changing or relying on Comp From the Employer Side so you can preserve its documented constraints and verify the result against the repository.
+*Most candidates negotiate against a model of comp that doesn't match how the company actually sets, approves, and flexes the offer. This document covers what's really happening on the other side of the table: where the bands come from, who can override them, and where real use actually exists.*
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow doc-length reason="The Comp From the Employer Side reader path stays in one file because splitting it would separate its operating context from its verification material" -->
 

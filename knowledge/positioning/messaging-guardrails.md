@@ -3,7 +3,7 @@ Claims ledger and messaging guardrails: the rename-up table (describe hard work 
 # Messaging Guardrails
 
 <!-- clean-docs:purpose -->
-Companion to `positioning-spine.md`. Full evidence with file:line is in the capability-inventory evidence doc. This file is the operational do/don't every writer checks before rendering a claim. Read this page before changing or relying on Messaging Guardrails so you can preserve its documented constraints and verify the result against the repository.
+Companion to `positioning-spine.md`. Full evidence with file:line is in the capability-inventory evidence doc. This file is the operational do/don't every writer checks before rendering a claim.
 <!-- clean-docs:end purpose -->
 
 

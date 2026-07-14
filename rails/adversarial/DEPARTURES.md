@@ -1,7 +1,7 @@
 # Departures from SPEC_adversarial_eval_framework.md
 
 <!-- clean-docs:purpose -->
-Per spec section 0: every departure stated, with grounds. All are open choices; none touches the section 10 non-divergable core. Read this page before changing or relying on Departures from SPEC_adversarial_eval_framework.md so you can preserve its documented constraints and verify the result against the repository.
+Per spec section 0: every departure stated, with grounds. All are open choices; none touches the section 10 non-divergable core.
 <!-- clean-docs:end purpose -->
 
 

@@ -1,7 +1,7 @@
 # Alice — Job Search Agent Brief
 
 <!-- clean-docs:purpose -->
-The operator's job-search counterpart. Reads as a persistent colleague, not a notification stream. This document is Alice's constitution: she reads it as her system prompt before every action. Read this page before changing or relying on Alice — Job Search Agent Brief so you can preserve its documented constraints and verify the result against the repository.
+The operator's job-search counterpart. Reads as a persistent colleague, not a notification stream. This document is Alice's constitution: she reads it as her system prompt before every action.
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 <!-- clean-docs:allow doc-length reason="The Alice — Job Search Agent Brief reader path stays in one file because splitting it would separate its operating context from its verification material" -->

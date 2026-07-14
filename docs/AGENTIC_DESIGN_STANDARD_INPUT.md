@@ -1,7 +1,7 @@
 # Alice Agentic-Design Framework
 
 <!-- clean-docs:purpose -->
-This is the design framework Alice's architecture follows. The thesis: you cannot code away the probability of a nondeterministic agent; you manage it through evals and self-correction. Every principle is a probability-management strategy, not a correctness guarantee. Read this page before changing or relying on Alice Agentic-Design Framework so you can preserve its documented constraints and verify the result against the repository.
+This is the design framework Alice's architecture follows. The thesis: you cannot code away the probability of a nondeterministic agent; you manage it through evals and self-correction. Every principle is a probability-management strategy, not a correctness guarantee.
 <!-- clean-docs:end purpose -->
 
 

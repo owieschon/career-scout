@@ -1,7 +1,7 @@
 # Structured Interviews: What Companies Actually Do
 
 <!-- clean-docs:purpose -->
-*Most interview prep advice treats interviewing as a generic skill. It isn't. Different companies use radically different methodologies, and the candidate who understands which one is being run on them has a real edge. This document covers the methods you'll actually encounter, their evidence base, and how to read the room.* Read this page before changing or relying on Structured Interviews: What Companies Actually Do so you can preserve its documented constraints and verify the result against the repository.
+*Most interview prep advice treats interviewing as a generic skill. It isn't. Different companies use radically different methodologies, and the candidate who understands which one is being run on them has a real edge. This document covers the methods you'll actually encounter, their evidence base, and how to read the room.*
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow doc-length reason="This canonical contract stays in one file so its definitions, constraints, and verification criteria remain reviewable together" -->
 

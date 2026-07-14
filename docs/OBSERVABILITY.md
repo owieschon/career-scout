@@ -1,7 +1,7 @@
 # Alice LLM Observability — Arize Phoenix / OpenTelemetry
 
 <!-- clean-docs:purpose -->
-**Status:** Instrumented and live-demonstrated. Production enablement requires the operator's launchd greenlight. Read this page before changing or relying on Alice LLM Observability — Arize Phoenix / OpenTelemetry so you can preserve its documented constraints and verify the result against the repository.
+**Status:** Instrumented and live-demonstrated. Production enablement requires the operator's launchd greenlight.
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 <!-- clean-docs:allow doc-length reason="The Alice LLM Observability — Arize Phoenix / OpenTelemetry reader path stays in one file because splitting it would separate its operating context from its verification material" -->

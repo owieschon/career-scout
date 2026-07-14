@@ -1,7 +1,7 @@
 # Sourcing-Matcher Redesign — Architecture
 
 <!-- clean-docs:purpose -->
-**Status:** DESIGN ONLY. Building zero lines of code until the operator has reviewed and decided every flagged open decision below. The learning layer especially is poisonous to build wrong — wrong-shape training data accumulates silently and is expensive to unwind. Read this page before changing or relying on Sourcing-Matcher Redesign — Architecture so you can preserve its documented constraints and verify the result against the repository.
+**Status:** DESIGN ONLY. Building zero lines of code until the operator has reviewed and decided every flagged open decision below. The learning layer especially is poisonous to build wrong — wrong-shape training data accumulates silently and is expensive to unwind.
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 <!-- clean-docs:allow doc-length reason="The Sourcing-Matcher Redesign — Architecture reader path stays in one file because splitting it would separate its operating context from its verification material" -->

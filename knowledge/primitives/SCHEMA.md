@@ -1,7 +1,7 @@
 # Primitives library — schema
 
 <!-- clean-docs:purpose -->
-Atomic, grounded, tagged units of the operator persona's profile. The prep agent SELECTS a role-specific subset and the composition layer (positioning-spine = composition rules) weaves them into coherent, non-recycled materials. Replaces prose masters as the *basis material*; the spine governs *how* selected primitives are composed. Read this page before changing or relying on Primitives library — schema so you can preserve its documented constraints and verify the result against the repository.
+Atomic, grounded, tagged units of the operator persona's profile. The prep agent SELECTS a role-specific subset and the composition layer (positioning-spine = composition rules) weaves them into coherent, non-recycled materials. Replaces prose masters as the *basis material*; the spine governs *how* selected primitives are composed.
 <!-- clean-docs:end purpose -->
 
 

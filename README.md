@@ -1,7 +1,7 @@
 # Alice
 
 <!-- clean-docs:purpose -->
-You're job-hunting under a hard constraint — *I can't relocate, I can't take a travel-heavy role right now* — and the most expensive mistake an agent can make isn't missing a good job. It's a confident **"this one fits"** on a role that was never viable: you read it, tailor a résumé, apply, and the cost lands on the one thing a job search can't get back — your time. Read this page before changing or relying on Alice so you can preserve its documented constraints and verify the result against the repository.
+You're job-hunting under a hard constraint — *I can't relocate, I can't take a travel-heavy role right now* — and the most expensive mistake an agent can make isn't missing a good job. It's a confident **"this one fits"** on a role that was never viable: you read it, tailor a résumé, apply, and the cost lands on the one thing a job search can't get back — your time.
 <!-- clean-docs:end purpose -->
 
 

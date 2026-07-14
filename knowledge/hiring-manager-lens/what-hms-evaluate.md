@@ -1,7 +1,7 @@
 # What Hiring Managers Actually Evaluate
 
 <!-- clean-docs:purpose -->
-*Job postings describe a fantasy. Hiring managers are evaluating four real things: can you do the job day 1, can you grow, will you fit the team, can they trust you to ship. Everything else is noise around those four questions.* Read this page before changing or relying on What Hiring Managers Actually Evaluate so you can preserve its documented constraints and verify the result against the repository.
+*Job postings describe a fantasy. Hiring managers are evaluating four real things: can you do the job day 1, can you grow, will you fit the team, can they trust you to ship. Everything else is noise around those four questions.*
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow doc-length reason="The What Hiring Managers Actually Evaluate reader path stays in one file because splitting it would separate its operating context from its verification material" -->
 

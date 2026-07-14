@@ -1,7 +1,7 @@
 # External Sources, Attempted and Logged
 
 <!-- clean-docs:purpose -->
-Status legend: - **accessible**, pulled successfully, content extracted into a subdirectory file - **partial**, fetched but limited (snippet only, listing page, etc.) - **needs-credentials**, paywalled or login-gated; the operator can unblock by providing credentials - **blocked-bot-traffic**, site blocks automated fetches; would need manual extraction or RSS - **needs-research**, not yet attempted Read this page before changing or relying on External Sources, Attempted and Logged so you can preserve its documented constraints and verify the result against the repository.
+Status legend: - **accessible**, pulled successfully, content extracted into a subdirectory file - **partial**, fetched but limited (snippet only, listing page, etc.) - **needs-credentials**, paywalled or login-gated; the operator can unblock by providing credentials - **blocked-bot-traffic**, site blocks automated fetches; would need manual extraction or RSS - **needs-research**, not yet attempted
 <!-- clean-docs:end purpose -->
 
 

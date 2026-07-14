@@ -1,7 +1,7 @@
 # Alice — Three-Move Architecture (design)
 
 <!-- clean-docs:purpose -->
-**Status: design surfaced for the operator's review. Nothing built. No behavior changed.** Grounded in a code-read state audit, not self-report. Read this page before changing or relying on Alice — Three-Move Architecture (design) so you can preserve its documented constraints and verify the result against the repository.
+**Status: design surfaced for the operator's review. Nothing built. No behavior changed.** Grounded in a code-read state audit, not self-report.
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow doc-length reason="The Alice — Three-Move Architecture (design) reader path stays in one file because splitting it would separate its operating context from its verification material" -->
 

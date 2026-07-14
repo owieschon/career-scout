@@ -1,7 +1,7 @@
 # Alice — Capabilities
 
 <!-- clean-docs:purpose -->
-What Alice (this agent) can and cannot do in the job-search system. Loaded into self-awareness context. Keep current; update when scripts change. Read this page before changing or relying on Alice — Capabilities so you can preserve its documented constraints and verify the result against the repository.
+What Alice (this agent) can and cannot do in the job-search system. Loaded into self-awareness context. Keep current; update when scripts change.
 <!-- clean-docs:end purpose -->
 <!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 <!-- clean-docs:allow doc-length reason="The Alice — Capabilities reader path stays in one file because splitting it would separate its operating context from its verification material" -->
