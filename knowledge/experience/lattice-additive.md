@@ -28,6 +28,11 @@ deliberately round example values, not real metrics.
 
 # Lattice Additive (Technical Account Manager)
 
+<!-- clean-docs:purpose -->
+Use this record when the retrieval pipeline needs fictional enterprise-account, customer-outcome, or additive-manufacturing experience from the Lattice Additive role. It isolates that source's account results so writers can support customer-facing claims without borrowing engineering or analytics outcomes from other records.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow near-duplicate reason="Experience records share the template's headings and guard language while this file remains the canonical home for Lattice Additive fictional facts" -->
+
 ## Canonical framing
 
 <!-- FRAMING-LOCK -->

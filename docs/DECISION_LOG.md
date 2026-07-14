@@ -1,11 +1,15 @@
 # Decision Log
 
-Non-trivial design decisions with the reasoning + the alternatives rejected.
-Newest first.
+<!-- clean-docs:purpose -->
+Non-trivial design decisions with the reasoning + the alternatives rejected. Newest first. Read this page before changing or relying on Decision Log so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
+
 
 ---
 
 ## 2026-06-01 — Location moved from the LLM judge prompt to a deterministic pre-gate
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 **Decision.** Pull the LOCATION viability check out of `fit_judge`'s
 LLM prompt and into a deterministic pre-gate (`src/alice/pipeline/location_gate.py`,

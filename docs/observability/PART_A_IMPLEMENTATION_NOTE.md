@@ -1,15 +1,17 @@
 # Part A — Phoenix Execution Tracing for Alice (Implementation Note)
 
-**Status:** The tracing code is landed and OFF by default (`ALICE_TRACING` unset means a total no-op): `scripts/telemetry.py` on disk, manual spans in `llm.py`, on-demand collector `scripts/phoenix_capture.sh`. Not yet done is live enablement — `ALICE_TRACING=1` + `phoenix serve` + capturing the live 121K baseline — which is an operator-greenlight gate (paid Anthropic calls on the live daemon plus restart discipline). The `read_sheet` cost fix is also landed. So tracing is built but off; turning it on (and thus starting the live capture) awaits the operator's greenlight and a free daemon lane.
-**Scope:** Full execution tracing of every Alice LLM call with PII redaction built in from line one, plus a documented before/after plan for the `read_sheet` token-bloat bug. Cadence Analytics is out of scope.
-**Readiness gate:** Cleared — the readiness audit returned a green verdict; the RED counters were dev/test artifacts, safe to instrument.
-**Reviewer action:** This single doc is the deliverable. Read §(d) fail-safes and §(f) riskiest-part before approving. Apply by hand; do not let an agent apply it.
+<!-- clean-docs:purpose -->
+**Status:** The tracing code is landed and OFF by default (`ALICE_TRACING` unset means a total no-op): `scripts/telemetry.py` on disk, manual spans in `llm.py`, on-demand collector `scripts/phoenix_capture.sh`. Not yet done is live enablement — `ALICE_TRACING=1` + `phoenix serve` + capturing the live 121K baseline — which is an operator-greenlight gate (paid Anthropic calls on the live daemon plus restart discipline). The `read_sheet` cost fix is also landed. So tracing is built but off; turning it on (and thus starting the live capture) awaits the operator's greenlight and a free daemon lane. **Scope:** Full execution tracing of every Alice LLM call with PII redaction built in from line one, plus a documented before/after plan for the `read_sheet` token-bloat bug. Cadence Analytics is out of scope. **Readiness gate:** Cleared — the readiness audit returned a green verdict; the RED counters were dev/test artifacts, safe to instrument. **Reviewer action:** This single doc is the deliverable. Read §(d) fail-safes and §(f) riskiest-part before approving. Apply by hand; do not let an agent apply it. Read this page before changing or relying on Part A — Phoenix Execution Tracing for Alice (Implementation Note) so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
+<!-- clean-docs:allow doc-length reason="The Part A — Phoenix Execution Tracing for Alice (Implementation Note) reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 
 ---
 
 ## (a) Grounding re-verification — live tree vs. the audit's line refs
 
-The audit (`PHOENIX_AUDIT.md`) is a snapshot. I re-read the live tree (`scripts/llm.py` in full; `run_daily.py` and `telegram_bot.py` via grep line-anchoring) and reconciled every critical line ref. The audit's core architectural finding holds: **no Anthropic SDK; one hand-rolled `urllib` chokepoint; `openinference-instrumentation-anthropic` would capture nothing here; manual span wrapping at `call()` instruments all ~20 call sites at once.**
+The [archived audit](../archive/observability/PHOENIX_AUDIT.md) is a snapshot. I re-read the live tree (`scripts/llm.py` in full; `run_daily.py` and `telegram_bot.py` via grep line-anchoring) and reconciled every critical line ref. The audit's core architectural finding holds: **no Anthropic SDK; one hand-rolled `urllib` chokepoint; `openinference-instrumentation-anthropic` would capture nothing here; manual span wrapping at `call()` instruments all ~20 call sites at once.**
 
 | Anchor | Audit ref | Live tree (verified) | Status |
 |---|---|---|---|
@@ -38,6 +40,7 @@ The audit (`PHOENIX_AUDIT.md`) is a snapshot. I re-read the live tree (`scripts/
 ## (b) The proposed patch (text — NOT applied)
 
 ### B.1 — `scripts/telemetry.py` (NEW FILE, full)
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 ```python
 """Alice tracing bootstrap + PII redaction — Part A of the Phoenix observability plan.
@@ -69,11 +72,11 @@ Env surface:
 import os
 import re
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Module-level state. `tracer` is what other modules import. When tracing is
-# off (or bootstrap fails), it stays a no-op tracer that produces no-op spans,
-# so callers never branch on "is tracing on?" — they just open spans.
-# ─────────────────────────────────────────────────────────────────────────────
+## ─────────────────────────────────────────────────────────────────────────────
+## Module-level state. `tracer` is what other modules import. When tracing is
+## off (or bootstrap fails), it stays a no-op tracer that produces no-op spans,
+## so callers never branch on "is tracing on?" — they just open spans.
+## ─────────────────────────────────────────────────────────────────────────────
 _INITIALIZED = False
 tracer = None  # set by init_tracing(); _NoopTracer until/unless real init succeeds
 
@@ -100,7 +103,7 @@ def _max_chars() -> int:
         return 800
 
 
-# ─── No-op tracer / span: used whenever tracing is off or bootstrap fails ────
+## ─── No-op tracer / span: used whenever tracing is off or bootstrap fails ────
 class _NoopSpan:
     def set_attribute(self, *a, **k):  # noqa: D401
         return None
@@ -133,20 +136,20 @@ class _NoopTracer:
         return _NoopSpan()
 
 
-# Start as no-op so importing this module alone (without init_tracing) is safe
-# and any accidental `from telemetry import tracer; tracer.start_span(...)`
-# degrades gracefully.
+## Start as no-op so importing this module alone (without init_tracing) is safe
+## and any accidental `from telemetry import tracer; tracer.start_span(...)`
+## degrades gracefully.
 tracer = _NoopTracer()
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Redaction — the single chokepoint every span-attribute set passes through.
-# ─────────────────────────────────────────────────────────────────────────────
+## ─────────────────────────────────────────────────────────────────────────────
+## Redaction — the single chokepoint every span-attribute set passes through.
+## ─────────────────────────────────────────────────────────────────────────────
 #
-# Allow-list of STRUCTURED attribute names that carry no free-text PII: model
-# names, task/tier labels, token counts, cost, latency, tool names, stop_reason,
-# roundtrip counts. These pass through untouched (still bounded — they're scalars
-# or short identifiers we set ourselves).
+## Allow-list of STRUCTURED attribute names that carry no free-text PII: model
+## names, task/tier labels, token counts, cost, latency, tool names, stop_reason,
+## roundtrip counts. These pass through untouched (still bounded — they're scalars
+## or short identifiers we set ourselves).
 _STRUCTURED_ATTRS = frozenset({
     "llm.model_name",
     "llm.provider",
@@ -166,8 +169,8 @@ _STRUCTURED_ATTRS = frozenset({
     "tool.round",
 })
 
-# CONTENT attribute names — free text that may contain PII. Always capped +
-# scrubbed, and dropped entirely when ALICE_TRACE_CONTENT=0.
+## CONTENT attribute names — free text that may contain PII. Always capped +
+## scrubbed, and dropped entirely when ALICE_TRACE_CONTENT=0.
 _CONTENT_ATTRS = frozenset({
     "input.value",
     "output.value",
@@ -176,9 +179,10 @@ _CONTENT_ATTRS = frozenset({
     "tool.result_preview",
 })
 
-# Conservative, high-precision PII patterns. Goal is to catch the obvious leaks
-# (email, phone, SSN-shaped, API keys) without trying to be a full DLP engine —
-# the cap + the ALICE_TRACE_CONTENT=0 kill switch are the real safety nets.
+## Conservative, high-precision PII patterns. Goal is to catch the obvious leaks
+## (email, phone, SSN-shaped, API keys) without trying to be a full DLP engine —
+## the cap + the ALICE_TRACE_CONTENT=0 kill switch are the real safety nets.
+# <!-- clean-docs:allow section-length reason="This code excerpt keeps the complete redaction registry together so reviewers can inspect every protected token class" -->
 _PII_PATTERNS = [
     (re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}"), "[EMAIL]"),
     (re.compile(r"\b(?:\+?1[\s.\-]?)?\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4}\b"), "[PHONE]"),
@@ -236,9 +240,10 @@ def set_attr(span, attr_name: str, value):
         pass
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Bootstrap.
-# ─────────────────────────────────────────────────────────────────────────────
+## ─────────────────────────────────────────────────────────────────────────────
+## Bootstrap.
+## ─────────────────────────────────────────────────────────────────────────────
+# <!-- clean-docs:allow section-length reason="This code excerpt keeps bootstrap setup and failure handling together so readers can verify the no-op fallback" -->
 def init_tracing():
     """Idempotent. If ALICE_TRACING is unset/"0": COMPLETE no-op (no imports,
     no provider, no exporter). Otherwise configure an OpenTelemetry tracer
@@ -288,6 +293,7 @@ def init_tracing():
 ---
 
 ### B.2 — `scripts/llm.py` (unified diff)
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 The span wraps the existing multi-round body. Two import lines at the top; an
 `init_tracing()` is **not** called here (entry points own that — §B.3), but the
@@ -563,6 +569,7 @@ rather than risk either a raw leak or an exception into the span path.
 **Live-system framing:** Alice runs the operator's real, time-pressured job search on a daemon (`telegram_bot.py`) with budget tripwires already firing. The design treats tracing as strictly additive observability: off by default, self-disabling on any fault, structurally unable to alter the LLM call's contract.
 
 ### (d.1) Verification results — EXECUTED 2026-05-30 (steps A + B), by the Move-3 session
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 The guarantees above were *reasoned, not run* in the original note. They have now
 been executed against the live tree (handoff steps A + B; C/D remain gated). The

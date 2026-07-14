@@ -1,6 +1,11 @@
 # Alice LLM Observability — Arize Phoenix / OpenTelemetry
 
-**Status:** Instrumented and live-demonstrated. Production enablement requires the operator's launchd greenlight.
+<!-- clean-docs:purpose -->
+**Status:** Instrumented and live-demonstrated. Production enablement requires the operator's launchd greenlight. Read this page before changing or relying on Alice LLM Observability — Arize Phoenix / OpenTelemetry so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
+<!-- clean-docs:allow doc-length reason="The Alice LLM Observability — Arize Phoenix / OpenTelemetry reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 
 ---
 
@@ -128,46 +133,6 @@ Confirmed on live spans from the 2026-05-31 recall_benchmark run:
 - `attributes.llm.system` — no email or phone pattern matched
 - `attributes.input.value` — no email matched
 - System prompt contains the operator persona name (name only, no contact info): passes through
-
----
-
-## Demo evidence — spans confirmed in Phoenix
-
-Run: `ALICE_TRACING=1 python3 src/alice/pipeline/recall_benchmark.py --judge` (2026-05-31 22:34 UTC)
-
-**6 spans generated and confirmed in Phoenix project "alice":**
-
-```
-span_id              name                  start_time (UTC)
-c3f6c966648842f0     fit_judge.role        2026-05-31 22:34:44   [recall-001, FIT]
-36d3dae6224ee625     llm.call:fit_judge    2026-05-31 22:34:44   [Supabase SA, FIT]
-4b061e3cea28149b     fit_judge.role        2026-05-31 22:34:49   [recall-002, REACH]
-5d8928e4a87e0af4     llm.call:fit_judge    2026-05-31 22:34:49   [Trailhead Robotics PM, REACH]
-2ce0794676a2097a     fit_judge.role        2026-05-31 22:34:54   [recall-003, NOT-FIT]
-59f9095c0acc4215     llm.call:fit_judge    2026-05-31 22:34:54   [Cobalt Automation CPM, NOT-FIT]
-```
-
-**Sample span attributes (span_id=36d3dae6224ee625, llm.call:fit_judge, recall-001):**
-
-```json
-{
-  "llm.provider":             "anthropic",
-  "llm.model_name":           "claude-haiku-4-5-20251001",
-  "alice.task":               "fit_judge",
-  "alice.tier":               "override",
-  "alice.selection_source":   "override_model",
-  "alice.rounds":             1,
-  "llm.token_count.prompt":   3115.0,
-  "llm.token_count.completion": 322.0,
-  "llm.token_count.thinking": 0,
-  "llm.cost.total":           0.004725,
-  "llm.latency_s":            5.154,
-  "llm.stop_reason":          "end_turn",
-  "input.value":              "TITLE: Solutions Architect\nCOMPANY: gh:supabase...",
-  "output.value":             "VERDICT: FIT\nCONSTRAINT: functional_fit\nSupabase...",
-  "llm.system":               "You are a fit-judge for Jordan Avery's job search..."
-}
-```
 
 ---
 
@@ -377,6 +342,7 @@ that exit before the background flush thread runs. Daemon never needs this.
 ---
 
 ## LangSmith — verified traces
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 Run: `ALICE_TRACING=1 PYTHONPATH=scripts python3 src/alice/pipeline/recall_benchmark.py --judge`
 

@@ -2,6 +2,10 @@ Canonical positioning spine: the single source of truth every application artifa
 
 # Positioning Spine
 
+<!-- clean-docs:purpose -->
+Use this reference when configuring how the fictional candidate's grounded experience is rendered for different role families. It separates stable source facts from audience-specific emphasis so writers can adapt a package without inventing credentials or crossing source boundaries.
+<!-- clean-docs:end purpose -->
+
 ## The problem this file fixes
 
 The operator persona's career and job-search messaging has a consistency problem: the SAME work gets framed as everything from "Manufacturing Technology Consultant" to "Customer-facing AI builder," depending on the target. A reviewer comparing two applications sees two different people. The mechanism: each artifact reverse-engineers a narrative from the JD on top of sales-heavy resume masters, with no canonical spine. Two failure modes recur:

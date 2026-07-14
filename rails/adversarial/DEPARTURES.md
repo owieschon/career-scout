@@ -1,7 +1,9 @@
 # Departures from SPEC_adversarial_eval_framework.md
 
-Per spec section 0: every departure stated, with grounds. All are open
-choices; none touches the section 10 non-divergable core.
+<!-- clean-docs:purpose -->
+Per spec section 0: every departure stated, with grounds. All are open choices; none touches the section 10 non-divergable core. Read this page before changing or relying on Departures from SPEC_adversarial_eval_framework.md so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+
 
 1. **Sandbox fixture instead of live-repo violations.** Cases run against
    a disposable toy repo into which the host's ACTUAL trust-layer files
@@ -40,7 +42,7 @@ because verify.sh now refuses an unstamped governor):
 
 ---
 
-# Repo-specific departures: job-search (Alice_Agent), retrofit 2026-06-09
+## Repo-specific departures: job-search (Alice_Agent), retrofit 2026-06-09
 
 First retrofit of the kit onto an existing live repo. Stated here so none
 of it is a silent drop.

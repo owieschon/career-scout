@@ -1,7 +1,9 @@
 # `knowledge/experience/` — file-authored experience source
 
-> Synthetic example data — a fictional engineer (Jordan Avery), used to
-> demonstrate the retrieval engine. Not anyone's real history.
+<!-- clean-docs:purpose -->
+Use this page when adding fictional experience records to the retrieval engine. It defines how file-authored records join chat-captured records so contributors can add examples without mixing sources or presenting synthetic history as real.
+<!-- clean-docs:end purpose -->
+
 
 This directory holds **file-authored experience-knowledge** about the
 operator persona's work history (projects, startups, jobs). Files here are a second

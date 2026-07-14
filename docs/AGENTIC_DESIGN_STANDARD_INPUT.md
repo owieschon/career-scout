@@ -1,6 +1,9 @@
 # Alice Agentic-Design Framework
 
-This is the design framework Alice's architecture follows. The thesis: you cannot code away the probability of a nondeterministic agent; you manage it through evals and self-correction. Every principle is a probability-management strategy, not a correctness guarantee.
+<!-- clean-docs:purpose -->
+This is the design framework Alice's architecture follows. The thesis: you cannot code away the probability of a nondeterministic agent; you manage it through evals and self-correction. Every principle is a probability-management strategy, not a correctness guarantee. Read this page before changing or relying on Alice Agentic-Design Framework so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+
 
 **The framework (five source principles plus extensions):**
 
@@ -18,7 +21,7 @@ Source principles (after Philipp Schmid, philschmid.de/why-engineers-struggle-bu
 
 **Conflicts the regime classification resolves:** Preserve-Meaning vs Build-to-Delete (keep the source only if a downstream judgment consumes it). Stop-Fighting vs Design-for-Recovery on transient errors (transient → self-recover; persistent → surface loud).
 
-**Prioritized opportunity list (leverage = blast-radius × cheapness):**
+**Prioritized opportunity list (use = blast-radius × cheapness):**
 
 1. **Ambiguous-parameter tool cluster** (Build-to-Delete): `flag_experience_candidate::source_turn_ts` (`tools.py:~1013-1020`), `flag_correction_candidate::operator_turn_ts/alice_turn_ts/alice_claim` (`~1137-1159`), `generate_application_package::substring` (`~856`), and `mark_role_status`. A literalist cheap-tier model fills these by inference, writing to durable stores. Fix: structured references, enum constraints, copy-don't-infer-with-validation.
 2. **Silent-swallow cluster** (loud-not-silent): `obs.flag_grounding_event` swallows Sentry-dispatch exceptions and returns False, and callers (`telegram_bot.py:1556-1616`) don't check — a grounding flag (a safety surface) can silently fail to surface. Sourcing aggregator fetch failures are swallowed (`daily_delta.py:362-432`).

@@ -24,6 +24,11 @@ values, not real metrics.
 
 # Alice (autonomous job-search agent)
 
+<!-- clean-docs:purpose -->
+Use this record when the retrieval pipeline needs fictional evidence about the Alice agent's design, safety gates, tests, or observability. It keeps those claims separate from commercial-product experience so writers can select technical examples without implying customers or revenue.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow near-duplicate reason="Experience records share the template's headings and guard language while this file remains the canonical home for Alice-specific fictional facts" -->
+
 ## Canonical framing
 
 <!-- FRAMING-LOCK -->

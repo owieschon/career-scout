@@ -1,7 +1,9 @@
 # Sourcing Calibration
 
-Generic, non-identifying matching rules for the sourcing engine. No personal data;
-matching is rule-based, not identity-based.
+<!-- clean-docs:purpose -->
+Generic, non-identifying matching rules for the sourcing engine. No personal data; matching is rule-based, not identity-based. Read this page before changing or relying on Sourcing Calibration so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+
 
 ## Hard gates (a role must pass all)
 - **Location:** remote-first preference within the US. Reject relocation-required and non-US-only.

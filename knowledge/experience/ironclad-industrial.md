@@ -28,6 +28,11 @@ facts only. Numbers are deliberately round example values, not real metrics.
 
 # Ironclad Industrial (heavy-duty industrial parts manufacturer) — operating role
 
+<!-- clean-docs:purpose -->
+Use this record when the retrieval pipeline needs fictional manufacturing, distribution, or ERP-domain experience from the Ironclad Industrial role. It keeps operating-role results separate from Cadence Analytics so writers can ground domain claims without inventing a customer relationship.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow near-duplicate reason="Experience records share the template's headings and guard language while this file remains the canonical home for Ironclad Industrial fictional facts" -->
+
 ## Canonical framing
 
 <!-- FRAMING-LOCK -->

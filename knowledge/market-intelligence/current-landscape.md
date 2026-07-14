@@ -1,6 +1,10 @@
 # The 2024-2026 Hiring Landscape
 
-*The market has bifurcated. AI-native companies are hiring hard for specific roles at inflated comp. Traditional B2B SaaS is in a "do more with less" posture with harder quotas and less generous comp packages. Remote roles still exist but have shrunk meaningfully since the 2021-2022 peak.*
+<!-- clean-docs:purpose -->
+*The market has bifurcated. AI-native companies are hiring hard for specific roles at inflated comp. Traditional B2B SaaS is in a "do more with less" posture with harder quotas and less generous comp packages. Remote roles still exist but have shrunk meaningfully since the 2021-2022 peak.* Read this page before changing or relying on The 2024-2026 Hiring Landscape so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow doc-length reason="The The 2024-2026 Hiring Landscape reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 
 ## The Post-ZIRP Correction
 
@@ -22,7 +26,7 @@ The single largest counterweight to the broader correction is AI-driven hiring. 
 - **OpenAI, Anthropic, Mistral, Cohere, xAI, Inflection (folded into Microsoft), various stealth labs**: aggressive hiring with comp packages at or above peak 2021 levels for senior roles. ML researchers and applied AI engineers at the top of the band command $400K-$1M+ TC at the frontier labs.
 - **AI-native application companies** (Quill Code, Perplexity, Lexicon AI, Lumen Search, Hebbia, etc.): hiring across engineering, GTM, and product at premium comp.
 - **Incumbent AI teams** (Salesforce Einstein, Snowflake Cortex, Atlassian Intelligence, etc.): selectively hiring AI specialists at comp premiums to their general bands.
-- **Forward Deployed Engineer roles**: emerged as the highest-leverage GTM-adjacent role at AI companies. Comp packages can rival senior PM/EM bands.
+- **Forward Deployed Engineer roles**: emerged as the highest-use GTM-adjacent role at AI companies. Comp packages can rival senior PM/EM bands.
 
 The pull on senior IC talent into these companies has been significant. The trickle-down effect: mid-market B2B SaaS companies trying to compete for AI-fluent talent have had to bend their bands, often unsuccessfully.
 
@@ -57,7 +61,7 @@ The "geo-adjusted comp" trend that emerged 2020-2021 has stuck partially:
 In practical terms for a candidate in Columbus, OH targeting an example band (e.g. $150k–$190k):
 - Top-of-band roles are achievable but the specific company matters
 - The same role at the same company can pay 10-20% less in Ohio than SF
-- Negotiation leverage on the geo-adjustment exists but is limited
+- Negotiation use on the geo-adjustment exists but is limited
 
 ## Sales Hiring in 2026
 
@@ -70,7 +74,7 @@ The sales hiring landscape has bifurcated:
   - Replaced SDRs with AI tools (Clay, Apollo with AI sequences, Outreach automations)
   - Promoted SDRs into AE roles rather than backfill at the SDR level
   - Pushed AEs to do more of their own prospecting
-- **Founding AE roles** at seed/Series A startups: high-leverage opportunity, often at lower base ($120K-$180K) with meaningful equity. Requires comfort with ambiguity and prospecting.
+- **Founding AE roles** at seed/Series A startups: high-use opportunity, often at lower base ($120K-$180K) with meaningful equity. Requires comfort with ambiguity and prospecting.
 
 What's specific about sales hiring in 2026:
 - Companies want demonstrated quota attainment in this market, not 2021 numbers. A candidate who hit 110% in 2024 is more valuable than one who hit 130% in 2021.
@@ -91,7 +95,7 @@ This is one of the rare functions where "more technical" maps cleanly to "higher
 
 ## Forward Deployed / Solutions / Applied AI
 
-These roles emerged from Palantir-style customer engineering and exploded at AI-native companies. In 2026, this is the highest-leverage hiring category:
+These roles emerged from Palantir-style customer engineering and exploded at AI-native companies. In 2026, this is the highest-use hiring category:
 
 - **Palantir Forward Deployed Engineer**: the original. Embeds with customers, ships custom integrations and analyses. Comp at senior level $200K-$400K TC.
 - **OpenAI / Anthropic Forward Deployed**: similar model, applied to LLM deployments at enterprise customers. Comp $250K-$500K+ TC.

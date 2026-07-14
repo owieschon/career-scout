@@ -402,10 +402,10 @@ _KNOWN_POSITIVE_TURN = {
     "tool_calls_with_results": [
         {
             "name":  "list_dir",
-            "input": {"path": "/home/user/job-search"},
+            "input": {"path": "."},
  # Real return shape from list_dir (truncated to the relevant entries)
             "result": {
-                "path":   "/home/user/job-search",
+                "path":   ".",
                 "exists": True,
                 "entries": [
                     {"name": "Alice.md", "is_file": True, "is_dir": False},
@@ -421,9 +421,9 @@ _KNOWN_POSITIVE_TURN = {
         },
         {
             "name":  "list_dir",
-            "input": {"path": "/home/user/job-search/templates"},
+            "input": {"path": "templates"},
             "result": {
-                "path":   "/home/user/job-search/templates",
+                "path":   "templates",
                 "exists": True,
                 "entries": [
                     {"name": "resume-operator-builder.docx", "is_file": True, "is_dir": False},

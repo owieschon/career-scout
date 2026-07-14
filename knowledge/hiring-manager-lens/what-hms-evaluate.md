@@ -1,6 +1,10 @@
 # What Hiring Managers Actually Evaluate
 
-*Job postings describe a fantasy. Hiring managers are evaluating four real things: can you do the job day 1, can you grow, will you fit the team, can they trust you to ship. Everything else is noise around those four questions.*
+<!-- clean-docs:purpose -->
+*Job postings describe a fantasy. Hiring managers are evaluating four real things: can you do the job day 1, can you grow, will you fit the team, can they trust you to ship. Everything else is noise around those four questions.* Read this page before changing or relying on What Hiring Managers Actually Evaluate so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow doc-length reason="The What Hiring Managers Actually Evaluate reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 
 ## The Posting Is Not the Job
 
@@ -122,7 +126,7 @@ In rough frequency order:
 The candidates who get the HM walking out of the screen saying "we have to hire this person" do four things:
 
 1. **Walk in with a hypothesis.** "Based on what I read about the company and what you said in the JD, my guess is the biggest unlock for this role in the next 6 months is X. Am I close?" HMs love this when the hypothesis is reasonable, even if wrong.
-2. **Demonstrate the work.** Not "here's what I did," but "here's how I'd think about your problem." Bring a small artifact: a 3-bullet diagnostic, a quick teardown of their pricing page, a hypothesis about why their funnel is leaking. This costs you 30 minutes of prep and is the single highest-leverage move.
+2. **Demonstrate the work.** Not "here's what I did," but "here's how I'd think about your problem." Bring a small artifact: a 3-bullet diagnostic, a quick teardown of their pricing page, a hypothesis about why their funnel is leaking. This costs you 30 minutes of prep and is the single highest-use move.
 3. **Tell one hard story with the political and technical detail intact.** A real story has a moment where you were wrong, or where the team disagreed, or where the customer escalated. Candidates who scrub those moments out sound like they've never actually shipped anything.
 4. **Ask one question the HM didn't expect.** Not "what's the company culture like." Something like "What's the team's current call on whether to build vs buy the X capability you mentioned in the JD" or "Who is the person on your team whose work you'd most want to clone."
 

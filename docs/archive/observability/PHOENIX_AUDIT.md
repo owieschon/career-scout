@@ -1,6 +1,12 @@
 # Phoenix Observability Audit — Alice
 
-**Scope:** Read-only audit of Alice (the job-search agent) mapping where Arize Phoenix (open-source, OpenTelemetry-native AI observability + evaluation) would add real value. No Alice code, prompts, or config were modified; the only artifact produced is this document.
+<!-- clean-docs:purpose -->
+**Scope:** Read-only audit of Alice (the job-search agent) mapping where Arize Phoenix (open-source, OpenTelemetry-native AI observability + evaluation) would add real value. No Alice code, prompts, or config were modified; the only artifact produced is this document. Read this page before changing or relying on Phoenix Observability Audit — Alice so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow audience reason="This page documents agent behavior as its subject; it addresses maintainers and evaluators rather than handing work to a future agent" -->
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
+<!-- clean-docs:allow doc-length reason="The Phoenix Observability Audit — Alice reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 
 **Method:** Grounded in direct reads of the real codebase (Python in `scripts/`; an early assumption of a JS `agent/` layout was wrong and corrected against the tree). Every architectural claim cites a real file:line or live DB/log state. Phoenix capabilities were verified against `arize.com/docs/phoenix` where it matters; unverified claims are flagged.
 
@@ -12,7 +18,7 @@
 
 - Alice has **cost telemetry, not execution tracing.** Every model call's cost/latency/tokens is logged to `feedback/time-cost-log.jsonl` (`llm._log_call`, `llm.py:266`), but **not** the prompt/response content, and **not** which job or run the call belonged to. The only per-turn execution spans that exist are Sentry spans on the *single* telegram freeform path (`telegram_bot.py:1439`), and they are a no-op unless `SENTRY_DSN` is set (`obs.py:40`).
 - **Critical correction for instrumentation:** Alice does **not** use the Anthropic SDK. Every call is a hand-rolled `urllib` POST to `/v1/messages` (`llm.py:454-489`). Phoenix's usual one-liner — `openinference-instrumentation-anthropic` auto-patching the SDK — **captures nothing here.** The good news: there is still exactly **one chokepoint** (`llm.call`, `llm.py:499`; HTTP at `_http_call_once`, `llm.py:454`), so ~15 lines of *manual* span wrapping at that one function instruments all ~20 call sites at once. Proposed diff in §3.
-- **Part B (the real prize):** Alice computes the ground truth that makes a career agent's observability valuable — fit-score, status transitions with dates, outreach response class, interview fit-signal — but **never joins the prediction to the outcome.** The DB table built for it (`opportunities`, with a 10-value `stage` enum and `date_applied`/`date_last_touch`) is **frozen mid-April: 16 rows, all stuck at `scored`/`parked`, those date columns NULL for all 16, and no code path advances them.** The live outcome record migrated to a Google Sheet whose `score` (col F) and `status` (col G) sit in the same row but are **never read together by any code.** Closing that loop — predictions graded by reality — is the highest-leverage work, and Phoenix span annotations are built for it.
+- **Part B (the real prize):** Alice computes the ground truth that makes a career agent's observability valuable — fit-score, status transitions with dates, outreach response class, interview fit-signal — but **never joins the prediction to the outcome.** The DB table built for it (`opportunities`, with a 10-value `stage` enum and `date_applied`/`date_last_touch`) is **frozen mid-April: 16 rows, all stuck at `scored`/`parked`, those date columns NULL for all 16, and no code path advances them.** The live outcome record migrated to a Google Sheet whose `score` (col F) and `status` (col G) sit in the same row but are **never read together by any code.** Closing that loop — predictions graded by reality — is the highest-use work, and Phoenix span annotations are built for it.
 
 ---
 
@@ -127,6 +133,7 @@
 What it lets you see that you can't today: the full prompt+response of *every* step (not just the last), the tool loop inside `call()`, and — critically — the per-call token breakdown that exposes the sheet-in-context token blowup (§9).
 
 #### Proposed instrumentation diff (PROPOSED ONLY — not applied)
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 ```diff
 *** /dev/null

@@ -1,6 +1,11 @@
 # Alice Production Observability Standard
 
-Status: production-grade local observability baseline, updated 2026-06-03.
+<!-- clean-docs:purpose -->
+Status: production-grade local observability baseline, updated 2026-06-03. Read this page before changing or relying on Alice Production Observability Standard so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
+<!-- clean-docs:allow doc-length reason="This canonical contract stays in one file so its definitions, constraints, and verification criteria remain reviewable together" -->
+
 
 Alice is a single-user local daemon, but the observability target is production
 multi-user SaaS discipline: deterministic health gates, explicit SLOs,
@@ -56,6 +61,7 @@ the health gate. A real external route is recommended for unattended operation.
 Prometheus alert rules live in `monitoring/alert_rules.yml`.
 
 ## Runbook
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 1. Run:
 

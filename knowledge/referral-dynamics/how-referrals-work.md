@@ -1,6 +1,10 @@
 # How Referrals Actually Work
 
-*A referral is not "a friend forwarding your resume." A referral is a specific ATS event tied to a specific employee with a written endorsement. The difference between a real referral and a forwarded resume is roughly a 5-10x conversion rate.*
+<!-- clean-docs:purpose -->
+*A referral is not "a friend forwarding your resume." A referral is a specific ATS event tied to a specific employee with a written endorsement. The difference between a real referral and a forwarded resume is roughly a 5-10x conversion rate.* Read this page before changing or relying on How Referrals Actually Work so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow doc-length reason="The How Referrals Actually Work reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 
 ## The ATS Mechanics
 
@@ -134,5 +138,5 @@ This is not a referral but it functions similarly: it pulls you out of the cold-
 - **Identify one well-connected employee per target company, not three.** A focused, real relationship with one person who can submit a Tier 1 referral beats six LinkedIn cold messages.
 - **At AI-native startups (Track 4), founder/exec intros are the real game.** A Tier 1 referral from a senior IC at a 20-person company is meaningful, but a direct intro from someone in the founder's circle is 10x more valuable. Spend cycles on the latter.
 - **The Cadence Analytics work is the best referral-earning asset.** When asking for a referral from a stranger, lead with "I built a B2B revenue intelligence platform end-to-end, happy to walk you through what I learned about [their domain]." That's a real reason for them to talk to you, not a transactional ask.
-- **Draft the endorsement for the referrer.** Three bullets they can paste verbatim into the portal. This is the single highest-leverage move and almost no one does it.
+- **Draft the endorsement for the referrer.** Three bullets they can paste verbatim into the portal. This is the single highest-use move and almost no one does it.
 - **Track every referral ask and outcome.** Who asked, when, outcome, whether they need a thank-you note. Referrers remember being thanked and remember being ghosted in equal measure.

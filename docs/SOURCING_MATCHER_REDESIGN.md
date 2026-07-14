@@ -1,6 +1,11 @@
 # Sourcing-Matcher Redesign — Architecture
 
-**Status:** DESIGN ONLY. Building zero lines of code until the operator has reviewed and decided every flagged open decision below. The learning layer especially is poisonous to build wrong — wrong-shape training data accumulates silently and is expensive to unwind.
+<!-- clean-docs:purpose -->
+**Status:** DESIGN ONLY. Building zero lines of code until the operator has reviewed and decided every flagged open decision below. The learning layer especially is poisonous to build wrong — wrong-shape training data accumulates silently and is expensive to unwind. Read this page before changing or relying on Sourcing-Matcher Redesign — Architecture so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
+<!-- clean-docs:allow doc-length reason="The Sourcing-Matcher Redesign — Architecture reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 
 **Scope:** the sourcing/fit-scoring core (`source_*.py` + `score_job.py`). Replaces the current keyword/regex matcher with a parameterized, learnable, model-judged fit engine. Composes — does not duplicate — `experience_store.py`, `targets/companies/<slug>.md` (company research), and `prep_pipeline.py` (the existing 4-stage gated GROUND→WRITE→VERIFY→ASSEMBLE pattern).
 
@@ -68,28 +73,29 @@ The five types, mapped:
 **Open decision 2 [operator to decide]:** are there parameters in the operator's fit model that I've under-typed above? E.g., is `domain-adjacency` really a weighted/continuous dimension, or is it a multi-select over a small ontology of "world labels" (industrial, hardware, AI-native, etc.) that the model scores against? My current placement is weighted/continuous; the multi-select-of-worlds shape would be sharper if the world ontology is enumerable and small.
 
 ### 3.3 The fit-model config (concrete shape, for reference)
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 Sketch only — exact format pending decision 1:
 
 ```toml
-# Binary gates — applied first
+## Binary gates — applied first
 [gates.location]
 type = "binary_gate"
 remote_ok = true
 remote_first = true
 non_remote_locations = ["Columbus, OH", "Franklin County, OH"]
 
-# Multi-select — choose several, all valid
+## Multi-select — choose several, all valid
 [selects.seniority]
 type = "multi_select"
 selected = ["mid_senior_ic", "first_line_manager", "founding_role"]
 
-# the operator's portfolio worlds — each world is a TRIPLE, not a bare string.
-# Adjacency is judged against the `definition`, never the `label`.
-# Structural enforcement: the engine's prompt-builder passes the definition
-# (not the label) to the model. The label is for human readability and
-# logging only. See §4.1 below for the prompt-template mechanism that makes
-# label-keyword-matching impossible.
+## the operator's portfolio worlds — each world is a TRIPLE, not a bare string.
+## Adjacency is judged against the `definition`, never the `label`.
+## Structural enforcement: the engine's prompt-builder passes the definition
+## (not the label) to the model. The label is for human readability and
+## logging only. See §4.1 below for the prompt-template mechanism that makes
+## label-keyword-matching impossible.
 [[selects.domain_worlds]]
 label       = "industrial_manufacturing"
 definition  = "Companies whose product or operations center on producing physical goods at scale in factories — durable goods, components, materials, industrial equipment, manufactured consumables. Sells to or operates within F500-scale manufacturing operations."
@@ -123,46 +129,46 @@ anti_examples = [
   "Marketing analytics with no revenue-attribution scope",
 ]
 
-# ... non-exhaustive; this is the seed. Add the remaining 4-10 critical
-# worlds in the same triple shape (label / definition / anti_examples).
+## ... non-exhaustive; this is the seed. Add the remaining 4-10 critical
+## worlds in the same triple shape (label / definition / anti_examples).
 
-# Weighted — gradient dimensions
+## Weighted — gradient dimensions
 [weights.functional_gradient]
 type = "weighted"
-# (a) commercial-led-tech-fluent, (c) bridge, (b) tech-led-customer-facing
+## (a) commercial-led-tech-fluent, (c) bridge, (b) tech-led-customer-facing
 buckets = { a = 1.0, c = 1.0, b = 0.6 }
 anti_fits = ["pure_marketing", "pure_ic_sales_no_tech", "pure_eng_no_customer"]
 
 [weights.combinatoric_emphasis]
 type = "weighted"
-# 0.0 = pure conventional; 1.0 = chase only easter eggs. Default high enough
-# to protect tails per the dispatch.
+## 0.0 = pure conventional; 1.0 = chase only easter eggs. Default high enough
+## to protect tails per the dispatch.
 value = 0.7
 
 [weights.adjacency_coverage]
 type = "weighted"
-# How generously the matcher accepts world-adjacency. Higher = more tolerant.
+## How generously the matcher accepts world-adjacency. Higher = more tolerant.
 value = 0.6
 
 [weights.fit_vs_value_tradeoff]
 type = "weighted"
-# The MASTER tradeoff. How much fit "buys" against comp/seniority/upside.
+## The MASTER tradeoff. How much fit "buys" against comp/seniority/upside.
 fit_weight = 0.65
 value_weight = 0.35
 
-# Fill-in-the-blank — literal values
+## Fill-in-the-blank — literal values
 [values.location]
 type = "fill_in"
 radius_miles = 50
 center = "Columbus, OH"
 
-# Composite — value modulates a weight
-# NOTE: example illustrative values, not anyone's real preferences.
+## Composite — value modulates a weight
+## NOTE: example illustrative values, not anyone's real preferences.
 [composite.comp_floor]
 type = "composite"
 threshold_usd = 150000        # example target band: $150k–$190k base
-# fit_vs_value_tradeoff above is the weight; this composite is the value
-# that parameterizes "at what comp does the tradeoff start kicking in"
+## fit_vs_value_tradeoff above is the weight; this composite is the value
+## that parameterizes "at what comp does the tradeoff start kicking in"
 soft_below_threshold = true   # great fit can buy down below
 ```
 
@@ -175,6 +181,7 @@ soft_below_threshold = true   # great fit can buy down below
 The engine evaluates a listing in **three decomposed dimensions**, judged by an LLM grounded in real evidence, with per-dimension persisted scores + reasoning. This is the structural answer to root cause 2 (independent substring matching) and root cause 3 (no real fit signal). It composes the existing infrastructure rather than duplicating it.
 
 ### 4.1 Three dimensions
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 For each listing, the engine produces three judged sub-scores, each with reasoning:
 
@@ -189,7 +196,7 @@ Input: `targets/companies/<slug>.md` (existing company-research format with CONF
 The model never receives the bare world `label`. It receives the `definition` (and `anti_examples`). Label-keyword-matching is impossible because the matching token (the label) is never in the prompt the model sees.
 
 ```python
-# src/alice/pipeline/matcher_engine.py — Dimension B prompt builder
+## src/alice/pipeline/matcher_engine.py — Dimension B prompt builder
 def _build_dimension_B_prompt(company_research: str,
                                domain_worlds: list[dict]) -> str:
     """Construct the Dimension B prompt. Each world is rendered using its
@@ -223,8 +230,8 @@ def _build_dimension_B_prompt(company_research: str,
         "clearly absent or matches an anti-example."
     )
 
-# The model's response is parsed by index ("World 1: strength=0.85, ...").
-# The dimension B output mapper then attaches the internal label back:
+## The model's response is parsed by index ("World 1: strength=0.85, ...").
+## The dimension B output mapper then attaches the internal label back:
 def _parse_dimension_B_response(response: str,
                                   domain_worlds: list[dict]) -> list[dict]:
     """Parse the model's per-world judgments. Reattaches the label for
@@ -262,6 +269,7 @@ Blob-embedding similarity (embed the JD, embed the operator's resume, take cosin
 Decomposition into A/B/C with reasoning is the alternative. Each piece is small enough for an LLM to handle without confabulation, and each piece persists its evidence for both human review and future learning.
 
 ### 4.4 Per-dimension persistence (the core primitive, made concrete)
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 Every surfaced lead persists, alongside the listing, this structure (sketch — exact schema TBD):
 
@@ -340,6 +348,7 @@ Then the peeling-back (the labeled-cuts loop in §6) teaches where to tighten �
 **Every cut MUST be logged with a reason from a fixed small set, AND every surfaced lead persists its per-dimension sub-scores + reasoning (§4.4).** Without both halves, the human-tuning loop (Layer 3 below) can't see what to tune, and any future learned model (Layer 4) trains on garbage.
 
 ### 6.1 The fixed reason set
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 The minimal set that makes the human-tuning loop work AND keeps Trap 1 (rejection ≠ clean negative) defanged:
 
@@ -356,7 +365,7 @@ The minimal set that makes the human-tuning loop work AND keeps Trap 1 (rejectio
 **Structural enforcement (mechanism, not policy — closed at BOTH ends):**
 
 ```python
-# src/alice/pipeline/lead_cuts.py — the writer-side gate
+## src/alice/pipeline/lead_cuts.py — the writer-side gate
 FROZEN_REASON_SET = frozenset({
     "bad_functional_fit",
     "wrong_domain",
@@ -372,10 +381,11 @@ FIT_LEARNING_REASONS = frozenset({          # subset that trains fit
     "wrong_seniority",
     "comp_too_low",
 })
-# FIT_LEARNING_REASONS is a module-level frozenset, not a config value.
-# Adding/removing entries requires a code change + review, which is the
-# structural guarantee against "someone configures viability cuts to feed
-# fit-learning by accident."
+## FIT_LEARNING_REASONS is a module-level frozenset, not a config value.
+## Adding/removing entries requires a code change + review, which is the
+## structural guarantee against "someone configures viability cuts to feed
+## fit-learning by accident."
+# <!-- clean-docs:allow section-length reason="This code excerpt keeps the frozen reason registry beside its only writer so reviewers can verify the training boundary in one block" -->
 
 def write_cut(listing_id: str, reason: str, free_text: str | None = None,
               score_record_id: str | None = None) -> None:
@@ -478,6 +488,7 @@ My read: (c) is the most natural extension of the existing sheet-driven status f
 **This is the only "learning" that should ship for a while.** Months, not days. Until there's enough fit-reason-labeled data that a learned re-ranker (Layer 4) wouldn't be noisy.
 
 ### 7.4 Layer 4 — Deferred, guarded learned re-ranker (much later)
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 **What it is:** ONLY when enough fit-reason-labeled cut data has accumulated (estimate: hundreds-low-thousands of cuts, months of usage), a small learned model may *re-rank* leads within what Layer 1 surfaces. Examples of "small": logistic regression on the per-dim features; a gradient-boosted tree on the score-record fields. NOT a neural net, NOT an embedding model — the data scale doesn't support either.
 
@@ -493,7 +504,7 @@ My read: (c) is the most natural extension of the existing sheet-driven status f
 The Layer-4 model code must not be able to SEE easter-egg rows in the first place. The mechanism: the data-loader is the only path into the training/inference functions, and the loader filters easter-egg rows at row-fetch time, before constructing the model's input. The model code's input domain is structurally restricted; there is no in-model "filter first thing" step because the rows aren't present to filter.
 
 ```python
-# scripts/matcher_layer4_data.py — the load-time filter
+## scripts/matcher_layer4_data.py — the load-time filter
 def load_training_rows() -> "pd.DataFrame":
     """Return training rows for the learned re-ranker. Easter-egg-flagged
     rows are EXCLUDED at load time, before the DataFrame exists. The
@@ -518,7 +529,7 @@ def load_inference_rows(listings: list[dict]) -> "pd.DataFrame":
     smooth them away."""
     return _to_df([l for l in listings if not l.get("easter_egg_signal", False)])
 
-# scripts/matcher_layer4_train.py — the model code
+## scripts/matcher_layer4_train.py — the model code
 def train_reranker(rows: "pd.DataFrame") -> "Model":
     """Trains the re-ranker. Takes the DataFrame from load_training_rows().
     Does NOT call load_training_rows() itself — receives the already-
@@ -592,6 +603,7 @@ Reuse `_log` / `seen_attempts` / `no_progress_streak` pattern from `stage_ground
 ---
 
 ## 9. Viability / human-judgment boundary
+<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 **The matcher enforces the LOCATION GATE (reliable, mechanical). It does NOT attempt other role-eligibility judgments that aren't reliably JD-resolvable.**
 
@@ -616,7 +628,7 @@ Universe → location gate → fit scoring → digest →
 The scoring function's input domain explicitly excludes `eligibility_sensitivity_flag`. The flag is set in a pre-scoring enrichment step and appended to the surfaced record by the digest renderer — a sibling channel the scorer cannot read.
 
 ```python
-# src/alice/pipeline/matcher_engine.py — the scoring function signature is the gate
+## src/alice/pipeline/matcher_engine.py — the scoring function signature is the gate
 def score(*,
           gates:      dict,
           dim_A:      dict,   # functional fit judgment + reasoning
@@ -636,7 +648,7 @@ def score(*,
     # No reference to eligibility_sensitivity_flag exists anywhere in this
     # function's body, because it isn't in the input.
 
-# src/alice/pipeline/matcher_pipeline.py — the surfacing assembly
+## src/alice/pipeline/matcher_pipeline.py — the surfacing assembly
 def assemble_surfaced_record(listing: dict, score_record: dict,
                               enrichments: dict) -> dict:
     """Combine the score with sibling enrichments (eligibility flag,

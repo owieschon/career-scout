@@ -1,6 +1,10 @@
 # Structured Interviews: What Companies Actually Do
 
-*Most interview prep advice treats interviewing as a generic skill. It isn't. Different companies use radically different methodologies, and the candidate who understands which one is being run on them has a real edge. This document covers the methods you'll actually encounter, their evidence base, and how to read the room.*
+<!-- clean-docs:purpose -->
+*Most interview prep advice treats interviewing as a generic skill. It isn't. Different companies use radically different methodologies, and the candidate who understands which one is being run on them has a real edge. This document covers the methods you'll actually encounter, their evidence base, and how to read the room.* Read this page before changing or relying on Structured Interviews: What Companies Actually Do so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow doc-length reason="This canonical contract stays in one file so its definitions, constraints, and verification criteria remain reviewable together" -->
+
 
 ## The Research Behind Structured Interviews
 
@@ -164,7 +168,7 @@ From debrief notes across companies:
 ## What This Means for the Operator
 
 - Build the 8-12 story bank now, before interviews start. Use the Lattice Additive aerospace/defense deals, the desktop 3D-printing global expansion, the industrial-manufacturer revenue work, and the Cadence Analytics build (a multi-agent platform built to take the guesswork out of customer-and-margin signals via ML and handle the manual revenue-ops workflows via agents, originated from patterns observed across industrial businesses) as the core anchor stories. Each should have specific numbers, customer descriptions where allowed, and a clear "what I personally did."
-- For Track 4 (AI-native), expect a take-home work sample. Treat it as the highest-leverage step. The Cadence Analytics build and production ML work give real material to draw on, but the take-home is where the thesis lives or dies.
+- For Track 4 (AI-native), expect a take-home work sample. Treat it as the highest-use step. The Cadence Analytics build and production ML work give real material to draw on, but the take-home is where the thesis lives or dies.
 - For Track 1 (AE), prepare a sales role play and a deal walkthrough. The deal walkthrough should be MEDDIC-structured even if the company doesn't ask in that language.
 - Industrial-adjacent companies (where the manufacturing credibility plays) are more likely to run Topgrading. Have honest, specific answers for the "what would your manager say" question for every role going back across the full work history.
 - The single dissent kills the candidate. Be sharp with every interviewer in the panel, including the cross-functional partner who "just wants to chat." That conversation is being scored.

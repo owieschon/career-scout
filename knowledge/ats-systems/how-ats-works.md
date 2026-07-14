@@ -1,6 +1,10 @@
 # How ATS Actually Works
 
-*Most "ATS hacking" advice on the internet is wrong, exaggerated, or based on systems that were retired five years ago. This document covers what modern ATSes actually do, where they fail, and how to write a resume that parses cleanly without looking like it was engineered by a tryhard.*
+<!-- clean-docs:purpose -->
+*Most "ATS hacking" advice on the internet is wrong, exaggerated, or based on systems that were retired five years ago. This document covers what modern ATSes actually do, where they fail, and how to write a resume that parses cleanly without looking like it was engineered by a tryhard.* Read this page before changing or relying on How ATS Actually Works so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow doc-length reason="The How ATS Actually Works reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 
 ## What an ATS Actually Is
 

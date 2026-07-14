@@ -1,8 +1,10 @@
 # Deferred features
 
-These are autonomous behaviors that are NOT live in Alice yet (or are live but
-gated). Each entry names what it would deliver, the measurable preconditions
-for promoting it to autonomous status, and current status.
+<!-- clean-docs:purpose -->
+These are autonomous behaviors that are NOT live in Alice yet (or are live but gated). Each entry names what it would deliver, the measurable preconditions for promoting it to autonomous status, and current status. Read this page before changing or relying on Deferred features so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow doc-length reason="The Deferred features reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 
 The rule: a behavior promotes only when the conjunction of preconditions
 holds. No composite scores. No averages. Each precondition is evaluated

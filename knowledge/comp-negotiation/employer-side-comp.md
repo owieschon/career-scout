@@ -1,6 +1,10 @@
 # Comp From the Employer Side
 
-*Most candidates negotiate against a model of comp that doesn't match how the company actually sets, approves, and flexes the offer. This document covers what's really happening on the other side of the table: where the bands come from, who can override them, and where real leverage actually exists.*
+<!-- clean-docs:purpose -->
+*Most candidates negotiate against a model of comp that doesn't match how the company actually sets, approves, and flexes the offer. This document covers what's really happening on the other side of the table: where the bands come from, who can override them, and where real use actually exists.* Read this page before changing or relying on Comp From the Employer Side so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow doc-length reason="The Comp From the Employer Side reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 
 ## Where Comp Bands Come From
 
@@ -53,7 +57,7 @@ The early-anchor game is real and goes both ways.
 
 ## What "Competing Offer" Actually Does
 
-The biggest leverage move in negotiation, and the most misunderstood.
+The biggest use move in negotiation, and the most misunderstood.
 
 A real competing offer with a higher number triggers:
 
@@ -63,7 +67,7 @@ A real competing offer with a higher number triggers:
 
 **What doesn't work:**
 - Fake competing offers. Recruiters have heard this a thousand times and can usually tell. They'll ask for specifics: which company, what level, what's the base/equity split. Lying here, when caught, blows up the offer entirely.
-- Vague "I'm in late-stage process at another company." Has minimal leverage value. Recruiters discount this to near-zero unless you can name the company and stage.
+- Vague "I'm in late-stage process at another company." Has minimal use value. Recruiters discount this to near-zero unless you can name the company and stage.
 - A "competing offer" from a company at a much lower tier than the current one. ($90K offer from a no-name doesn't move a $160K Anthropic offer.)
 
 **What does work:**

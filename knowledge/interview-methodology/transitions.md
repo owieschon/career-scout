@@ -1,9 +1,9 @@
 # Employment transitions — the "why did you leave?" narratives
 
-Interview-prep grounding for the job-change story. **Interview-prep ONLY — never
-render any of this on a résumé or in a cover letter.** These are clean, honest,
-externally-verifiable answers to the screen-stage "why did you leave / why so
-short?" question.
+<!-- clean-docs:purpose -->
+Interview-prep grounding for the job-change story. **Interview-prep ONLY — never render any of this on a résumé or in a cover letter.** These are clean, honest, externally-verifiable answers to the screen-stage "why did you leave / why so short?" question. Read this page before changing or relying on Employment transitions — the "why did you leave?" narratives so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+
 
 > Note: the operator persona ("Jordan Avery") is a fictional engineer used to
 > demonstrate the engine. The arc below is synthetic example data, not anyone's

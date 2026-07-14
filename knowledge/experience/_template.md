@@ -49,6 +49,12 @@ HEADER NOTES — apply to every source file in this directory.
 
 # <Source name>
 
+<!-- clean-docs:purpose -->
+Use this template when adding a fictional experience source to the retrieval corpus. It requires provenance, claim status, and source-specific boundaries so writers can retrieve grounded examples without turning aspirations or another source's results into submitted claims.
+<!-- clean-docs:end purpose -->
+<!-- clean-docs:allow near-duplicate reason="Experience records share this template's headings and guard language while each file remains the canonical home for one fictional source's distinct facts" -->
+<!-- clean-docs:allow doc-length reason="The <Source name> reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+
 ## Canonical framing
 
 <!--

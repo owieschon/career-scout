@@ -1,6 +1,9 @@
 # Alice
 
-You're job-hunting under a hard constraint — *I can't relocate, I can't take a travel-heavy role right now* — and the most expensive mistake an agent can make isn't missing a good job. It's a confident **"this one fits"** on a role that was never viable: you read it, tailor a résumé, apply, and the cost lands on the one thing a job search can't get back — your time.
+<!-- clean-docs:purpose -->
+You're job-hunting under a hard constraint — *I can't relocate, I can't take a travel-heavy role right now* — and the most expensive mistake an agent can make isn't missing a good job. It's a confident **"this one fits"** on a role that was never viable: you read it, tailor a résumé, apply, and the cost lands on the one thing a job search can't get back — your time. Read this page before changing or relying on Alice so you can preserve its documented constraints and verify the result against the repository.
+<!-- clean-docs:end purpose -->
+
 
 **Alice sources listings, screens them under that constraint, and hands back a short, explained list plus drafted application materials** — built so the verdict that wastes your time can't be authored by a drifting prompt or a malformed model reply. It's a single-operator agent: one person's search, one person's calibration, encoded as data. The location/travel kill happens in deterministic code *before* any model runs; the LLM only gets a vote on roles that already cleared viability.
 
