@@ -12,7 +12,8 @@ pip install -e ".[dev]"
 pytest          # 412 passing, 2 skipped — hermetic (no network, secrets, or DB)
 ```
 
-`pip install -e .` installs the `alice` package (src layout); tests and callers
+`pip install -e .` installs the `career-scout` distribution and its `alice`
+runtime package (src layout); tests and callers
 import it by path, e.g. `from alice.pipeline import fit_judge`.
 
 Two testing tiers, kept separate on purpose:

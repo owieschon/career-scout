@@ -3,12 +3,12 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "alice-agent"
+name = "career-scout"
 version = "0.1.0"
-description = "Alice — a job-search sourcing and screening engine (public engine only; personal data stays local)."
+description = "A job-search sourcing and screening engine with deterministic viability gates."
 readme = "README.md"
 requires-python = ">=3.11"          # tomllib is used directly; stdlib only from 3.11
-license = { text = "Proprietary" }
+license = "Apache-2.0"
 authors = [{ name = "Owen Schoeniger" }]
 
 # Runtime dependencies imported by the engine. The LLM is called over stdlib
@@ -32,6 +32,11 @@ dev = [
 supabase = [
     "supabase>=2",
 ]
+
+[project.urls]
+Homepage = "https://github.com/owieschon/career-scout"
+Repository = "https://github.com/owieschon/career-scout"
+Issues = "https://github.com/owieschon/career-scout/issues"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
