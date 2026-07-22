@@ -1,8 +1,11 @@
 # How Recruiters Actually Work
 
-<!-- clean-docs:purpose -->
-*Notes from inside the recruiting function. Most candidates misread the incentives and the workload, which is why their outreach gets ignored and their applications die in the queue. This document explains what a recruiter's day actually looks like, who they prioritize, and why.*
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:purpose -->
+*Evidence class: unsourced recruiting-workflow and prioritization hypotheses.*
+<!-- sourcebound:end purpose -->
+
+Workflow generalizations require dated practitioner or product evidence before
+use as facts; see [`knowledge/README.md`](../README.md).
 
 
 ## The Sourcing Pipeline

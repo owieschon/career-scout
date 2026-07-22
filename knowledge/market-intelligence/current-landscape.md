@@ -1,9 +1,11 @@
 # The 2024-2026 Hiring Landscape
 
-<!-- clean-docs:purpose -->
-*The market has bifurcated. AI-native companies are hiring hard for specific roles at inflated comp. Traditional B2B SaaS is in a "do more with less" posture with harder quotas and less generous comp packages. Remote roles still exist but have shrunk meaningfully since the 2021-2022 peak.*
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow doc-length reason="The The 2024-2026 Hiring Landscape reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+<!-- sourcebound:purpose -->
+*Evidence class: unsourced 2024-2026 market, compensation, and hiring-trend hypotheses.*
+<!-- sourcebound:end purpose -->
+
+Every dated trend and numeric range here needs a source and access date before
+use as fact; see [`knowledge/README.md`](../README.md).
 
 
 ## The Post-ZIRP Correction

@@ -1,26 +1,20 @@
 # Alice LLM Observability — Arize Phoenix / OpenTelemetry
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 **Status:** Instrumented and live-demonstrated. Production enablement requires the operator's launchd greenlight.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
-<!-- clean-docs:allow doc-length reason="The Alice LLM Observability — Arize Phoenix / OpenTelemetry reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+<!-- sourcebound:end purpose -->
 
 
 ---
 
 ## What this is
 
-Alice makes every LLM call via a raw `urllib`-based HTTP client (no Anthropic SDK, no LangChain).
+Alice makes every LLM call through raw `urllib` HTTP transports for Anthropic
+Messages or OpenRouter chat completions (no vendor SDK and no LangChain).
 Standard auto-instrumentation hooks do not apply. Every span is created manually using the
 OpenTelemetry Python API, exported via `arize-phoenix-otel` to a local self-hosted Phoenix
 instance (`http://localhost:6006`). This document describes the instrumentation architecture,
 the attribute schema, PII redaction, and the outcome-annotation eval loop.
-
-**Resume line this backs:**  
-*Built manual OTel tracing on a raw-HTTP (non-SDK) Anthropic client; wired outcome-feedback
-annotation loop via Arize Phoenix (self-hosted); spans carry provider/model/task/tier/effort,
-PII-scrubbed content, and real outcomes annotated back onto prediction spans.*
 
 ---
 
@@ -29,8 +23,8 @@ PII-scrubbed content, and real outcomes annotated back onto prediction spans.*
 | File | Role |
 |------|------|
 | `src/alice/observability/telemetry.py` | Tracing bootstrap, `redact()`, `set_attr()`, B3 outcome flywheel |
-| `src/alice/llm/llm.py:614+` | Manual `llm.call:{task}` span wrapping the raw HTTP loop |
-| `src/alice/pipeline/fit_judge.py:401+` | `fit_judge.role` parent span wrapping each judge invocation |
+| `src/alice/llm/llm.py` | Manual `llm.call:{task}` span wrapping the raw HTTP loop |
+| `src/alice/pipeline/fit_judge.py` | `fit_judge.role` parent span wrapping each judge invocation |
 | `src/alice/observability/obs.py` | Sentry turn-level spans (separate concern, not OTel/Phoenix) |
 
 ---
@@ -49,14 +43,14 @@ ALICE_TRACE_CONTENT    # "0" => metadata-only (drop input/output attrs entirely)
 ALICE_TRACE_MAX_CHARS  # per-content-attr truncation cap (default 800 chars)
 ```
 
-`init_tracing()` (`telemetry.py:309`) is idempotent. When disabled it sets `_INITIALIZED=True`
+`init_tracing()` in `telemetry.py` is idempotent. When disabled it sets `_INITIALIZED=True`
 and returns, leaving `tracer` as `_NoopTracer`. When enabled it calls `phoenix.otel.register()`
 with `batch=True` (background `BatchSpanProcessor`) so a dead collector drops spans silently
 rather than blocking the model call path.
 
 ### Span creation — manual, not auto-instrumented
 
-`llm.call()` (`llm.py:614`) opens a span with `tracer.start_as_current_span(f"llm.call:{task}")`,
+`llm.call()` opens a span with `tracer.start_as_current_span(f"llm.call:{task}")`,
 enters it manually (not via `with`) so the `finally` clause can close it without any risk of
 suppressing an in-flight Alice exception:
 
@@ -69,7 +63,7 @@ finally:
     _span_cm.__exit__(None, None, None)
 ```
 
-`fit_judge.py` wraps each judge call in a `fit_judge.role` parent span (`fit_judge.py:407`),
+`fit_judge.py` wraps each judge call in a `fit_judge.role` parent span,
 which becomes the parent of the `llm.call:fit_judge` child span in Phoenix traces.
 
 ---
@@ -80,7 +74,7 @@ which becomes the parent of the `llm.call:fit_judge` child span in Phoenix trace
 
 | Attribute | Example value | Description |
 |-----------|---------------|-------------|
-| `llm.provider` | `"anthropic"` | Always "anthropic" for Alice |
+| `llm.provider` | `"anthropic"` or `"openrouter"` | Transport selected for the chosen model |
 | `llm.model_name` | `"claude-haiku-4-5-20251001"` | Chosen model |
 | `alice.task` | `"fit_judge"` | Task label from call site |
 | `alice.tier` | `"cheap"` | Model tier (cheap/medium/expensive/override) |
@@ -113,9 +107,9 @@ Content attributes are dropped entirely when `ALICE_TRACE_CONTENT=0`.
 
 ## PII redaction
 
-`redact()` (`telemetry.py:161`) is the single chokepoint every span attribute passes through.
+`redact()` in `telemetry.py` is the single chokepoint every span attribute passes through.
 
-**Structured attrs** (allow-list at `telemetry.py:108`) pass through untouched — they are
+**Structured attrs** in the module allow-list pass through untouched — they are
 scalars or short identifiers we set ourselves (model names, task labels, token counts, ids).
 
 **Content attrs** are: stringified, run through high-precision PII patterns (email, phone,
@@ -124,7 +118,7 @@ SSN-shaped, API keys, 32+ char tokens), then truncated with a `"...[+N chars]"` 
 **Fail-closed**: unknown attribute names are treated as content and scrubbed, so a future
 attribute added without updating the allow-list still gets redacted, never leaked raw.
 
-`set_attr()` (`telemetry.py:190`) wraps `redact()` + `span.set_attribute()` and skips the
+`set_attr()` wraps `redact()` + `span.set_attribute()` and skips the
 `set_attribute` call entirely when `redact()` returns `None` (content-disabled mode).
 
 ### PII redaction verified
@@ -140,13 +134,13 @@ Confirmed on live spans from the 2026-05-31 recall_benchmark run:
 
 ### How it works
 
-1. **Prediction side** (`llm.call`, `llm.py:628`): when `job_key` is set, `span_id` is extracted
+1. **Prediction side** (`llm.call`): when `job_key` is set, `span_id` is extracted
    from the live OTel span (`telemetry.span_id_of(span)`) and persisted to `feedback/prediction-spans.jsonl`:
    ```json
    {"ts": "2026-05-31T18:39:46", "job_key": "recall-001-demo", "span_id": "36d3dae6224ee625", "task": "fit_judge"}
    ```
 
-2. **Outcome side** (`annotate_outcome`, `telemetry.py:278`): when a ledger status update arrives
+2. **Outcome side** (`annotate_outcome`): when a ledger status update arrives
    (submitted / interviewing / offer / rejected), the most recent span for the job is looked up
    and annotated via `Phoenix.spans.add_span_annotation(...)`:
    ```python
@@ -178,8 +172,7 @@ span_id=36d3dae6224ee625  (llm.call:fit_judge, Supabase SA, FIT)
 ### Annotation client path
 
 The annotation call uses `_px.Client().spans.add_span_annotation(...)`. Phoenix 16.x
-has no `.annotations` attribute on the client, so the `.spans` path is required;
-`telemetry.py:294`.
+has no `.annotations` attribute on the client, so the `.spans` path is required.
 
 ### What remains held
 
@@ -221,7 +214,7 @@ This means **no daemon restart is needed** to begin or end a capture window.
 Run:
 
 ```
-PYTHONPATH=scripts python3 src/alice/observability/observability_healthcheck.py
+python3 -m alice.observability.observability_healthcheck
 ```
 
 The gate fails nonzero unless the full chain is live: deploy guard, launchd `ALICE_TRACING=1`,
@@ -253,7 +246,7 @@ Installed local service:
 ~/Library/LaunchAgents/com.jordan.jobsearch.observability-healthcheck.plist
 ```
 
-It runs `PYTHONPATH=scripts python3 src/alice/observability/observability_healthcheck.py` every 6 hours
+It runs `python3 -m alice.observability.observability_healthcheck` every 6 hours
 (`StartInterval=21600`) and at load. A failing run exits nonzero and sends
 `alice.observability.healthcheck_failed` to Sentry when Sentry is reachable. Logs land in
 `state/observability_healthcheck.launchd.log` and `state/observability_healthcheck.launchd.err`.
@@ -269,7 +262,7 @@ evals/alice_scope_regression_cases.jsonl
 Loader:
 
 ```
-PYTHONPATH=scripts python3 src/alice/pipeline/alice_eval_dataset.py --load-phoenix
+python3 -m alice.pipeline.alice_eval_dataset --load-phoenix
 ```
 
 Phoenix dataset: `alice-scope-regression`. The seed cases cover the failure class from the
@@ -342,9 +335,8 @@ that exit before the background flush thread runs. Daemon never needs this.
 ---
 
 ## LangSmith — verified traces
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
-Run: `ALICE_TRACING=1 PYTHONPATH=scripts python3 src/alice/pipeline/recall_benchmark.py --judge`
+Run: `ALICE_TRACING=1 python3 -m alice.pipeline.recall_benchmark --judge`
 
 **Phoenix: 6 spans received** (regression confirmed — dual-export did NOT break Phoenix):
 

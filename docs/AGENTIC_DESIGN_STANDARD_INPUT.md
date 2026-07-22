@@ -1,8 +1,8 @@
 # Alice Agentic-Design Framework
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 This is the design framework Alice's architecture follows. The thesis: you cannot code away the probability of a nondeterministic agent; you manage it through evals and self-correction. Every principle is a probability-management strategy, not a correctness guarantee.
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:end purpose -->
 
 
 **The framework (five source principles plus extensions):**

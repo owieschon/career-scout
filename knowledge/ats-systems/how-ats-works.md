@@ -1,9 +1,11 @@
 # How ATS Actually Works
 
-<!-- clean-docs:purpose -->
-*Most "ATS hacking" advice on the internet is wrong, exaggerated, or based on systems that were retired five years ago. This document covers what modern ATSes actually do, where they fail, and how to write a resume that parses cleanly without looking like it was engineered by a tryhard.*
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow doc-length reason="The How ATS Actually Works reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+<!-- sourcebound:purpose -->
+*Evidence class: unsourced ATS parser, ranking, and product-behavior notes.*
+<!-- sourcebound:end purpose -->
+
+Parser and ranking descriptions require product documentation or dated tests
+before use as facts; see [`knowledge/README.md`](../README.md).
 
 
 ## What an ATS Actually Is

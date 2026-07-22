@@ -1,8 +1,8 @@
 # Sourcing Calibration
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 Generic, non-identifying matching rules for the sourcing engine. No personal data; matching is rule-based, not identity-based.
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:end purpose -->
 
 
 ## Hard gates (a role must pass all)
@@ -41,6 +41,7 @@ Two paths to label a role's status; both update the Google Sheet, both feed the 
    - Quoted lines (`>` prefix, "On X wrote:", iOS signatures) are ignored.
    - Processed messages get IMAP-flagged (idempotent — re-runs skip them).
 
+   <!-- sourcebound:allow-inline-document target="feedback/observations.md" reason="Reply processing creates this private observation log at runtime" -->
    **Unstructured (observations, complaints, ideas)** — anything in the reply that isn't a status command is captured verbatim to `feedback/observations.md` with timestamp + reply-subject header. The next morning's digest shows a tail block: `📝 You sent N observation(s) in the past 36h` with previews of each. You can write things like *"hub-bound roles keep slipping through"* or *"the Loopwork CAD bullet was a false positive"* and they'll land in the log instead of being silently dropped. The operator reviews `feedback/observations.md` during the weekly review.
 
 `scripts/imap_reply.py` runs every morning at 2pm before `daily_delta.py`, so labels you sent overnight are applied before today's surfacing pass.

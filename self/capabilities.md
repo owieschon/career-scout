@@ -1,10 +1,8 @@
 # Alice — Capabilities
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 What Alice (this agent) can and cannot do in the job-search system. Loaded into self-awareness context. Keep current; update when scripts change.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
-<!-- clean-docs:allow doc-length reason="The Alice — Capabilities reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+<!-- sourcebound:end purpose -->
 
 
 ## Identity
@@ -59,8 +57,8 @@ Cost is logged to `feedback/time-cost-log.jsonl`.
 - Cadence: invoked by `scripts/run_daily.sh` (morning) and on-demand.
 
 ### Scoring / triage
-- `scripts/score_job.py` — 0–100 scorecard against kill criteria and fit
-  dimensions defined in `CLAUDE.md`.
+- `scripts/score_job.py` — 0–100 scorecard against the gates and fit
+  dimensions defined in `config/fit_model.toml`.
 - `scripts/scorecard.py` — shared scoring primitives.
 - `scripts/triage_observations.py` — convert observations into pipeline
   state updates.
@@ -71,6 +69,7 @@ Cost is logged to `feedback/time-cost-log.jsonl`.
 - Focus list — `feedback/focus.json` (canonical). Roles the operator has chosen to
   prioritize. Set/updated via `scripts/focus.py` and `scripts/focus_enforce.py`.
 - Triage state — `feedback/triage-state.json`.
+<!-- sourcebound:allow-inline-document target="feedback/observations.md" reason="Confirmed replies create this private observation log at runtime" -->
 - Observations — `feedback/observations.md` (released after confirmation).
 - Seen-jobs dedup — `state/seen_jobs.json`.
 - Pending confirmation — `feedback/pending-confirmation.json`.
@@ -100,6 +99,7 @@ Cost is logged to `feedback/time-cost-log.jsonl`.
   target with hypotheses about fit and angle.
 
 ### Reporting / behavior
+<!-- sourcebound:allow-inline-document target="daily/YYYY-MM-DD.md" reason="The daily generator creates this date-keyed runtime report" -->
 - `scripts/generate_daily.py` — generate `daily/YYYY-MM-DD.md`.
 - `scripts/daily_delta.py` — delta vs. prior day.
 - `scripts/morning_reminder.py` — morning prompt.
@@ -114,7 +114,7 @@ Cost is logged to `feedback/time-cost-log.jsonl`.
 - Alice writes `feedback/pending-confirmation.json`, sends echo.
 - 5-minute window: any correction reply resets the window; absence of a
   correction triggers execution.
-- Held observations are released to `observations.md` only after execution.
+- Held observations are released to `feedback/observations.md` only after execution.
 
 ### Self-inspection (Layer 4 / item 4)
 - `scripts/self_inspection.py` — read-only allowlist of safe commands
@@ -181,11 +181,10 @@ phases:
 the operator is notified only on headline change (Addendum 3 silent-poll).
 
 ## What Alice CANNOT do
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 - **Cannot send job applications.** Drafts only. the operator submits.
 - **Cannot send outreach without review.** Drafts only. the operator sends.
-- **Cannot apply on the operator's behalf** (explicit rule in `CLAUDE.md`).
+- **Cannot apply on the operator's behalf.** No application-submission tool is registered in `src/alice/tools.py`.
 - **Cannot browse arbitrary sites.** Only the sources wired into
   `source_*.py` and pages reachable via `requests` + the JD-fetch path.
   Sites that require JS rendering, login, or have aggressive bot-blocks
@@ -360,5 +359,5 @@ Falling back to "the code exists, trust it" is not a resolution.
 
 Every quarter, audit the inventory of shipped capabilities against the
 live-evidence standard. Anything that cannot produce evidence is moved
-back to in-progress until evidence is produced. See
-`roadmap/shipping-audit-2026-05.md` for the most recent audit.
+back to in-progress until evidence is produced. Record the result in the
+activity log; this repository does not publish a current quarterly audit.

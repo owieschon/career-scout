@@ -1,15 +1,15 @@
 # Contributing / working in this repo
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 A short orientation for a human or agent making changes here.
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:end purpose -->
 
 
 ## Run the tests
 
 ```bash
 pip install -e ".[dev]"
-pytest          # 412 passing, 2 skipped — hermetic (no network, secrets, or DB)
+pytest -q       # hermetic: no network, secrets, or database
 ```
 
 `pip install -e .` installs the `career-scout` distribution and its `alice`
@@ -35,5 +35,5 @@ Two testing tiers, kept separate on purpose:
   database. Inject the LLM call and any I/O.
 - Record consequential design decisions in `docs/DECISION_LOG.md`.
 
-See [`AUDIT.md`](AUDIT.md) for the current state of the codebase and the
-prioritized list of what would change next.
+See [`docs/README.md`](docs/README.md) for current architecture and operating
+references. `AUDIT.md` is a preserved assessment, not a current runbook.

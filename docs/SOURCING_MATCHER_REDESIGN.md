@@ -1,10 +1,18 @@
 # Sourcing-Matcher Redesign — Architecture
 
-<!-- clean-docs:purpose -->
-**Status:** DESIGN ONLY. Building zero lines of code until the operator has reviewed and decided every flagged open decision below. The learning layer especially is poisonous to build wrong — wrong-shape training data accumulates silently and is expensive to unwind.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
-<!-- clean-docs:allow doc-length reason="The Sourcing-Matcher Redesign — Architecture reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+<!-- sourcebound:purpose -->
+Use this historical design record to inspect the decisions that preceded the current screening funnel; use `ARCHITECTURE.md` and the implementation for current behavior.
+<!-- sourcebound:end purpose -->
+
+> **Original status (preserved):** DESIGN ONLY. Building zero lines of code
+> until the operator has reviewed and decided every flagged open decision
+> below. The learning layer especially is poisonous to build wrong — wrong-shape
+> training data accumulates silently and is expensive to unwind.
+>
+> **Current disposition:** The config-driven fit judge, deterministic
+> location/travel gate, reason-labeled cuts, and sourcing configuration are now
+> implemented. This file remains the pre-implementation design record; it is not
+> the live architecture. See [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 
 **Scope:** the sourcing/fit-scoring core (`source_*.py` + `score_job.py`). Replaces the current keyword/regex matcher with a parameterized, learnable, model-judged fit engine. Composes — does not duplicate — `experience_store.py`, `targets/companies/<slug>.md` (company research), and `prep_pipeline.py` (the existing 4-stage gated GROUND→WRITE→VERIFY→ASSEMBLE pattern).
@@ -73,7 +81,6 @@ The five types, mapped:
 **Open decision 2 [operator to decide]:** are there parameters in the operator's fit model that I've under-typed above? E.g., is `domain-adjacency` really a weighted/continuous dimension, or is it a multi-select over a small ontology of "world labels" (industrial, hardware, AI-native, etc.) that the model scores against? My current placement is weighted/continuous; the multi-select-of-worlds shape would be sharper if the world ontology is enumerable and small.
 
 ### 3.3 The fit-model config (concrete shape, for reference)
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 Sketch only — exact format pending decision 1:
 
@@ -181,7 +188,6 @@ soft_below_threshold = true   # great fit can buy down below
 The engine evaluates a listing in **three decomposed dimensions**, judged by an LLM grounded in real evidence, with per-dimension persisted scores + reasoning. This is the structural answer to root cause 2 (independent substring matching) and root cause 3 (no real fit signal). It composes the existing infrastructure rather than duplicating it.
 
 ### 4.1 Three dimensions
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 For each listing, the engine produces three judged sub-scores, each with reasoning:
 
@@ -269,7 +275,6 @@ Blob-embedding similarity (embed the JD, embed the operator's resume, take cosin
 Decomposition into A/B/C with reasoning is the alternative. Each piece is small enough for an LLM to handle without confabulation, and each piece persists its evidence for both human review and future learning.
 
 ### 4.4 Per-dimension persistence (the core primitive, made concrete)
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 Every surfaced lead persists, alongside the listing, this structure (sketch — exact schema TBD):
 
@@ -348,7 +353,6 @@ Then the peeling-back (the labeled-cuts loop in §6) teaches where to tighten �
 **Every cut MUST be logged with a reason from a fixed small set, AND every surfaced lead persists its per-dimension sub-scores + reasoning (§4.4).** Without both halves, the human-tuning loop (Layer 3 below) can't see what to tune, and any future learned model (Layer 4) trains on garbage.
 
 ### 6.1 The fixed reason set
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 The minimal set that makes the human-tuning loop work AND keeps Trap 1 (rejection ≠ clean negative) defanged:
 
@@ -385,7 +389,6 @@ FIT_LEARNING_REASONS = frozenset({          # subset that trains fit
 ## Adding/removing entries requires a code change + review, which is the
 ## structural guarantee against "someone configures viability cuts to feed
 ## fit-learning by accident."
-# <!-- clean-docs:allow section-length reason="This code excerpt keeps the frozen reason registry beside its only writer so reviewers can verify the training boundary in one block" -->
 
 def write_cut(listing_id: str, reason: str, free_text: str | None = None,
               score_record_id: str | None = None) -> None:
@@ -488,7 +491,6 @@ My read: (c) is the most natural extension of the existing sheet-driven status f
 **This is the only "learning" that should ship for a while.** Months, not days. Until there's enough fit-reason-labeled data that a learned re-ranker (Layer 4) wouldn't be noisy.
 
 ### 7.4 Layer 4 — Deferred, guarded learned re-ranker (much later)
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 **What it is:** ONLY when enough fit-reason-labeled cut data has accumulated (estimate: hundreds-low-thousands of cuts, months of usage), a small learned model may *re-rank* leads within what Layer 1 surfaces. Examples of "small": logistic regression on the per-dim features; a gradient-boosted tree on the score-record fields. NOT a neural net, NOT an embedding model — the data scale doesn't support either.
 
@@ -603,7 +605,6 @@ Reuse `_log` / `seen_attempts` / `no_progress_streak` pattern from `stage_ground
 ---
 
 ## 9. Viability / human-judgment boundary
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 **The matcher enforces the LOCATION GATE (reliable, mechanical). It does NOT attempt other role-eligibility judgments that aren't reliably JD-resolvable.**
 

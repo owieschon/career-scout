@@ -2,9 +2,9 @@ Canonical positioning spine: the single source of truth every application artifa
 
 # Positioning Spine
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 Use this reference when configuring how the fictional candidate's grounded experience is rendered for different role families. It separates stable source facts from audience-specific emphasis so writers can adapt a package without inventing credentials or crossing source boundaries.
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:end purpose -->
 
 ## The problem this file fixes
 
@@ -21,11 +21,11 @@ This spine resolves both. Every writer renders from it. Emphasis varies by arche
 
 ## The thesis (core narrative, constant across roles)
 
-The persona is the rare person who can **build the AI agent AND talk to the buyer it serves.** Most people who can ship agentic systems cannot sit in front of a customer; most customer-facing people cannot ship. They do both, in a domain (manufacturing/distribution/industrial B2B) they know from the inside. The builder half is proven in code (see `knowledge/experience/cadence-analytics.md`, `alice.md`); the customer half is proven in revenue (see `lattice-additive.md`). The combination is the position.
+The persona is the rare person who can **build the AI agent AND talk to the buyer it serves.** Most people who can ship agentic systems cannot sit in front of a customer; most customer-facing people cannot ship. They do both, in a domain (manufacturing/distribution/industrial B2B) they know from the inside. The builder half is proven in code (see `knowledge/experience/cadence-analytics.md`, `knowledge/experience/alice.md`); the customer half is proven in revenue (see `knowledge/experience/lattice-additive.md`). The combination is the position.
 
 ## GLOBAL RENDER RULES (apply to every artifact)
 
-1. **Agentic-first ordering. Do not invert.** Lead with the agent engineering (multi-pass orchestration, MCP tool servers, multi-model routing, guardrails, three-transport implementations, two production agents). Then full-stack delivery. Then ML as a *validated supporting signal*, never the headline. ML metrics (AUC, concordance) are legible and tempting to lead with: resist. (Enforced in `cadence-analytics.md`'s framing-lock.)
+1. **Agentic-first ordering. Do not invert.** Lead with the agent engineering (multi-pass orchestration, MCP tool servers, multi-model routing, guardrails, three-transport implementations, two production agents). Then full-stack delivery. Then ML as a *validated supporting signal*, never the headline. ML metrics (AUC, concordance) are legible and tempting to lead with: resist. (Enforced in `knowledge/experience/cadence-analytics.md`'s framing-lock.)
 2. **Position by capability + combination, not by title or credential.** The persona has no CS degree and a sales-titled history. Leading with titles invites the weakest comparison. Lead with what has demonstrably been built and the rare pairing. The portfolio is the credential.
 3. **Domain is a differentiator, not a liability.** Never write "my background is manufacturing, will I translate?" Write "I build AI for the industrial/distribution buyers I spent a decade selling to." Aerospace/defense/industrial buyers are higher-complexity, not lower.
 4. **Claim hard, with proof; never inflate.** Use the recognized technical term (see `messaging-guardrails.md` rename-up table). Never render a banned/over-claim. An honest scope-boundary beats a generous overstatement.

@@ -1,10 +1,29 @@
 # Part A — Phoenix Execution Tracing for Alice (Implementation Note)
 
-<!-- clean-docs:purpose -->
-**Status:** The tracing code is landed and OFF by default (`ALICE_TRACING` unset means a total no-op): `scripts/telemetry.py` on disk, manual spans in `llm.py`, on-demand collector `scripts/phoenix_capture.sh`. Not yet done is live enablement — `ALICE_TRACING=1` + `phoenix serve` + capturing the live 121K baseline — which is an operator-greenlight gate (paid Anthropic calls on the live daemon plus restart discipline). The `read_sheet` cost fix is also landed. So tracing is built but off; turning it on (and thus starting the live capture) awaits the operator's greenlight and a free daemon lane. **Scope:** Full execution tracing of every Alice LLM call with PII redaction built in from line one, plus a documented before/after plan for the `read_sheet` token-bloat bug. Cadence Analytics is out of scope. **Readiness gate:** Cleared — the readiness audit returned a green verdict; the RED counters were dev/test artifacts, safe to instrument. **Reviewer action:** This single doc is the deliverable. Read §(d) fail-safes and §(f) riskiest-part before approving. Apply by hand; do not let an agent apply it.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
-<!-- clean-docs:allow doc-length reason="The Part A — Phoenix Execution Tracing for Alice (Implementation Note) reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+<!-- sourcebound:purpose -->
+Use this historical implementation note to inspect the proposed Phoenix tracing patch and its original verification record; use `../OBSERVABILITY.md` and `PRODUCTION_STANDARD.md` for current paths and commands.
+<!-- sourcebound:end purpose -->
+
+> **Original status (preserved):** The tracing code is landed and OFF by default
+> (`ALICE_TRACING` unset means a total no-op): `scripts/telemetry.py` on disk,
+> manual spans in `llm.py`, on-demand collector `scripts/phoenix_capture.sh`.
+> Not yet done is live enablement — `ALICE_TRACING=1` + `phoenix serve` +
+> capturing the live 121K baseline — which is an operator-greenlight gate (paid
+> Anthropic calls on the live daemon plus restart discipline). The `read_sheet`
+> cost fix is also landed. So tracing is built but off; turning it on (and thus
+> starting the live capture) awaits the operator's greenlight and a free daemon
+> lane. **Scope:** Full execution tracing of every Alice LLM call with PII
+> redaction built in from line one, plus a documented before/after plan for the
+> `read_sheet` token-bloat bug. Cadence Analytics is out of scope. **Readiness
+> gate:** Cleared — the readiness audit returned a green verdict; the RED
+> counters were dev/test artifacts, safe to instrument. **Reviewer action:**
+> This single doc is the deliverable. Read §(d) fail-safes and §(f) riskiest-part
+> before approving. Apply by hand; do not let an agent apply it.
+>
+> **Current disposition:** Do not execute commands or apply diffs from this
+> record. Current code lives under `src/alice/`; the supported architecture is
+> [`../OBSERVABILITY.md`](../OBSERVABILITY.md) and the current runbook is
+> [`PRODUCTION_STANDARD.md`](PRODUCTION_STANDARD.md).
 
 
 ---
@@ -40,7 +59,6 @@ The [archived audit](../archive/observability/PHOENIX_AUDIT.md) is a snapshot. I
 ## (b) The proposed patch (text — NOT applied)
 
 ### B.1 — `scripts/telemetry.py` (NEW FILE, full)
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 ```python
 """Alice tracing bootstrap + PII redaction — Part A of the Phoenix observability plan.
@@ -182,7 +200,6 @@ _CONTENT_ATTRS = frozenset({
 ## Conservative, high-precision PII patterns. Goal is to catch the obvious leaks
 ## (email, phone, SSN-shaped, API keys) without trying to be a full DLP engine —
 ## the cap + the ALICE_TRACE_CONTENT=0 kill switch are the real safety nets.
-# <!-- clean-docs:allow section-length reason="This code excerpt keeps the complete redaction registry together so reviewers can inspect every protected token class" -->
 _PII_PATTERNS = [
     (re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}"), "[EMAIL]"),
     (re.compile(r"\b(?:\+?1[\s.\-]?)?\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4}\b"), "[PHONE]"),
@@ -243,7 +260,6 @@ def set_attr(span, attr_name: str, value):
 ## ─────────────────────────────────────────────────────────────────────────────
 ## Bootstrap.
 ## ─────────────────────────────────────────────────────────────────────────────
-# <!-- clean-docs:allow section-length reason="This code excerpt keeps bootstrap setup and failure handling together so readers can verify the no-op fallback" -->
 def init_tracing():
     """Idempotent. If ALICE_TRACING is unset/"0": COMPLETE no-op (no imports,
     no provider, no exporter). Otherwise configure an OpenTelemetry tracer
@@ -293,7 +309,6 @@ def init_tracing():
 ---
 
 ### B.2 — `scripts/llm.py` (unified diff)
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 The span wraps the existing multi-round body. Two import lines at the top; an
 `init_tracing()` is **not** called here (entry points own that — §B.3), but the
@@ -569,7 +584,6 @@ rather than risk either a raw leak or an exception into the span path.
 **Live-system framing:** Alice runs the operator's real, time-pressured job search on a daemon (`telegram_bot.py`) with budget tripwires already firing. The design treats tracing as strictly additive observability: off by default, self-disabling on any fault, structurally unable to alter the LLM call's contract.
 
 ### (d.1) Verification results — EXECUTED 2026-05-30 (steps A + B), by the Move-3 session
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 The guarantees above were *reasoned, not run* in the original note. They have now
 been executed against the live tree (handoff steps A + B; C/D remain gated). The

@@ -1,10 +1,17 @@
 # Codebase audit
 
-<!-- clean-docs:purpose -->
-An honest assessment of this repository: what it is, what is strong, and what would change to make a senior engineer respect it. Written so a reviewer who has never seen the code can calibrate quickly.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow doc-length reason="The Codebase audit reader path stays in one file because splitting it would separate its operating context from its verification material" -->
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
+<!-- sourcebound:purpose -->
+Use this preserved assessment to understand the packaging refactor and deferred proposals recorded at the time; use `docs/ARCHITECTURE.md` for the current system.
+<!-- sourcebound:end purpose -->
+
+> **Original audience note (preserved):** An honest assessment of this
+> repository: what it is, what is strong, and what would change to make a senior
+> engineer respect it. Written so a reviewer who has never seen the code can
+> calibrate quickly.
+>
+> **Current disposition:** This is a process record, not a current-state
+> reference. See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and the
+> [`docs/README.md`](docs/README.md) index.
 
 
 ## What it is
@@ -36,7 +43,6 @@ The honest one-line framing: *an LLM-engineering project with real eval
 discipline and real cost/safety reasoning* — not a deployable product.
 
 ## Engineering notes
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 Notable structural work in this codebase, each verified against the green test
 suite (412 passing):

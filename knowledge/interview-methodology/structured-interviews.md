@@ -1,9 +1,11 @@
 # Structured Interviews: What Companies Actually Do
 
-<!-- clean-docs:purpose -->
-*Most interview prep advice treats interviewing as a generic skill. It isn't. Different companies use radically different methodologies, and the candidate who understands which one is being run on them has a real edge. This document covers the methods you'll actually encounter, their evidence base, and how to read the room.*
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow doc-length reason="This canonical contract stays in one file so its definitions, constraints, and verification criteria remain reviewable together" -->
+<!-- sourcebound:purpose -->
+*Evidence class: unsourced interview-method and company-practice notes with uncited research claims.*
+<!-- sourcebound:end purpose -->
+
+Research coefficients and company-practice descriptions require primary-source
+citations before use as facts; see [`knowledge/README.md`](../README.md).
 
 
 ## The Research Behind Structured Interviews

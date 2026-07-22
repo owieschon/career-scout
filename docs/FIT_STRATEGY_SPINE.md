@@ -1,8 +1,8 @@
 # Fit Strategy Spine — single source of truth
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 This is the authoritative strategy the **whole pipeline** (sourcing → matching → prep) must align to. Engine code reads it via `fit_model.toml`; it is NOT re-derived per session. Update this doc when the strategy changes.
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:end purpose -->
 
 
 ## 0. The position
