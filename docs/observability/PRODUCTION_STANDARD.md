@@ -1,10 +1,8 @@
 # Alice Production Observability Standard
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 Status: production-grade local observability baseline, updated 2026-06-03.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
-<!-- clean-docs:allow doc-length reason="This canonical contract stays in one file so its definitions, constraints, and verification criteria remain reviewable together" -->
+<!-- sourcebound:end purpose -->
 
 
 Alice is a single-user local daemon, but the observability target is production
@@ -61,12 +59,11 @@ the health gate. A real external route is recommended for unattended operation.
 Prometheus alert rules live in `monitoring/alert_rules.yml`.
 
 ## Runbook
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 1. Run:
 
    ```bash
-   PYTHONPATH=scripts python3 scripts/observability_healthcheck.py
+   python3 -m alice.observability.observability_healthcheck
    ```
 
 2. If `daemon.deploy_guard` fails, restart Alice:
@@ -91,25 +88,25 @@ Prometheus alert rules live in `monitoring/alert_rules.yml`.
 6. If infra checks fail, inspect `query_runtime_metrics` through Alice or run:
 
    ```bash
-   PYTHONPATH=scripts python3 -c 'import runtime_metrics, json; print(json.dumps(runtime_metrics.summary(), indent=2))'
+   python3 -c 'from alice.observability import runtime_metrics; import json; print(json.dumps(runtime_metrics.summary(), indent=2))'
    ```
 
 7. Refresh all interview/production observability artifacts:
 
    ```bash
-   PYTHONPATH=scripts python3 scripts/observability_artifacts.py --all --enforce-retention
+   python3 -m alice.observability.observability_artifacts --all --enforce-retention
    ```
 
 8. Run the paid judged eval suite explicitly:
 
    ```bash
-   PYTHONPATH=scripts python3 scripts/observability_artifacts.py --judged-eval
+   python3 -m alice.observability.observability_artifacts --judged-eval
    ```
 
 9. Run the real Alice behavior regression explicitly:
 
    ```bash
-   PYTHONPATH=scripts python3 scripts/alice_behavior_regression.py
+   python3 -m alice.ops.alice_behavior_regression
    ```
 
 10. Check the Prometheus metrics exporter:
@@ -127,6 +124,13 @@ Prometheus alert rules live in `monitoring/alert_rules.yml`.
 ## Generated Artifacts
 
 Generated under `state/observability/`:
+
+<!-- sourcebound:allow-inline-document target="slo-summary.md" reason="The observability exporter writes this runtime SLO summary under private state" -->
+<!-- sourcebound:allow-inline-document target="eval-summary.md" reason="The evaluation exporter writes this runtime dataset summary under private state" -->
+<!-- sourcebound:allow-inline-document target="judged-eval.md" reason="An enabled judged run writes this runtime report under private state" -->
+<!-- sourcebound:allow-inline-document target="behavior-regression.md" reason="An enabled behavior run writes this runtime regression report under private state" -->
+<!-- sourcebound:allow-inline-document target="retention-report.md" reason="The retention job writes this runtime report under private state" -->
+<!-- sourcebound:allow-inline-document target="trace-to-outcome.md" reason="The trace exporter writes this runtime correlation report under private state" -->
 
 - `latest-healthcheck.json`: latest full healthcheck report.
 - `metrics.json`: machine-readable runtime/SLO/cost metrics.

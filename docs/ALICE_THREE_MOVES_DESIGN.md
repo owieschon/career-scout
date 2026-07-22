@@ -1,9 +1,18 @@
 # Alice — Three-Move Architecture (design)
 
-<!-- clean-docs:purpose -->
-**Status: design surfaced for the operator's review. Nothing built. No behavior changed.** Grounded in a code-read state audit, not self-report.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow doc-length reason="The Alice — Three-Move Architecture (design) reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+<!-- sourcebound:purpose -->
+Use this historical design record to inspect the proposed three-move architecture and compare it with the current implementation linked in the disposition notice.
+<!-- sourcebound:end purpose -->
+
+> **Original status (preserved):** Design surfaced for the operator's review.
+> Nothing built. No behavior changed. Grounded in a code-read state audit, not
+> self-report.
+>
+> **Current disposition:** Parts of Move 1 and Move 3 are implemented in
+> [`operator_intent.py`](../src/alice/pipeline/operator_intent.py), the ledger
+> intent states, decision-feedback paths, and direct-question context suppression
+> in [`telegram_bot.py`](../src/alice/notify/telegram_bot.py). This file remains
+> the original design record and does not claim that every proposed move landed.
 
 
 This document designs three moves coherently, because all three descend from one

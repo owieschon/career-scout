@@ -9,7 +9,7 @@
     "cost_anomaly_detection": "single-call anomaly logged and Sentry event emitted same turn"
   },
   "metrics_backend": {
-    "exporter": "scripts/metrics_http_server.py serves http://127.0.0.1:9108/metrics",
+    "exporter": "python3 -m alice.observability.metrics_http_server serves http://127.0.0.1:9108/metrics",
     "scrape_config": "monitoring/prometheus.yml",
     "alert_rules": "monitoring/alert_rules.yml",
     "backend_status": "scrape-ready for local or external Prometheus; no paid backend required"
@@ -78,7 +78,7 @@
   "enterprise_readiness": {
     "local_single_user_target": "10/10 with all required artifacts fresh, behavior regression passing, remote readbacks live, and audit evidence present",
     "multi_user_saas_target": "external_required until RBAC/SSO, tenant isolation, hosted metrics, paid paging, and larger labeled eval coverage exist",
-    "gate": "scripts/observability_healthcheck.py requires state/observability/enterprise-readiness.json local_status=pass"
+    "gate": "python3 -m alice.observability.observability_healthcheck requires state/observability/enterprise-readiness.json local_status=pass"
   },
   "thresholds": {
     "telegram_max_rss_mb": 750,

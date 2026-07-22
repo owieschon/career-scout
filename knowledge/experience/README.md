@@ -1,8 +1,8 @@
 # `knowledge/experience/` — file-authored experience source
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 Use this page when adding fictional experience records to the retrieval engine. It defines how file-authored records join chat-captured records so contributors can add examples without mixing sources or presenting synthetic history as real.
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:end purpose -->
 
 
 This directory holds **file-authored experience-knowledge** about the
@@ -12,7 +12,7 @@ alongside the existing chat-capture path in `feedback/experience-store.jsonl`.
 
 Both paths feed the same first-class `experience` source class that the
 GROUND stage's writers and verifier already consume. See
-`scripts/experience_store.py` for the union-at-retrieve logic.
+`src/alice/persistence/experience_store.py` for the union-at-retrieve logic.
 
 ## Two integrity models — different mechanisms, same guarantee
 

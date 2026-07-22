@@ -1,9 +1,11 @@
 # AI Screening Tools in Hiring
 
-<!-- clean-docs:purpose -->
-*AI shows up in hiring in three places: sourcing/matching, async video screening, and resume parsing. None of it is as smart as the vendor decks claim. Most of it is unfaccounted for by candidates, who either over-engineer for the wrong signal or assume the system is dumber than it is.*
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow doc-length reason="The AI Screening Tools in Hiring reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+<!-- sourcebound:purpose -->
+*Evidence class: unsourced notes about screening vendors, product behavior, and hiring law.*
+<!-- sourcebound:end purpose -->
+
+Do not rely on vendor or legal statements here until their sources and access
+dates are recorded; see [`knowledge/README.md`](../README.md).
 
 
 ## HireVue and Async Video Interviews

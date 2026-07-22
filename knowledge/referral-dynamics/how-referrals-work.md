@@ -1,9 +1,11 @@
 # How Referrals Actually Work
 
-<!-- clean-docs:purpose -->
-*A referral is not "a friend forwarding your resume." A referral is a specific ATS event tied to a specific employee with a written endorsement. The difference between a real referral and a forwarded resume is roughly a 5-10x conversion rate.*
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow doc-length reason="The How Referrals Actually Work reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+<!-- sourcebound:purpose -->
+*Evidence class: unsourced referral-mechanics hypotheses, including the stated conversion estimate.*
+<!-- sourcebound:end purpose -->
+
+The conversion and workflow claims require a source URL and access date before
+use as facts; see the evidence rule in [`knowledge/README.md`](../README.md).
 
 
 ## The ATS Mechanics

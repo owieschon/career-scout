@@ -1,8 +1,8 @@
 # Departures from SPEC_adversarial_eval_framework.md
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 Per spec section 0: every departure stated, with grounds. All are open choices; none touches the section 10 non-divergable core.
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:end purpose -->
 
 
 1. **Sandbox fixture instead of live-repo violations.** Cases run against

@@ -2,9 +2,9 @@ Claims ledger and messaging guardrails: the rename-up table (describe hard work 
 
 # Messaging Guardrails
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 Companion to `positioning-spine.md`. Full evidence with file:line is in the capability-inventory evidence doc. This file is the operational do/don't every writer checks before rendering a claim.
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:end purpose -->
 
 
 > Note: the operator persona ("Jordan Avery") is a fictional engineer used to demonstrate the engine. Not anyone's real history.

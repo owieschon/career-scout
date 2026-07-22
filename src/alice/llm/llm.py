@@ -1192,11 +1192,14 @@ def load_alice_brief():
         assembled = (
             assembled
             + "\n\n---\n\n"
-            + "## Knowledge base (recruiting/hiring insider context)\n\n"
-            + "You have a curated knowledge base on how hiring works from the "
-            + "employer side. Draw on it when the operator asks about recruiting strategy, "
+            + "## Knowledge notebook (mixed evidence status)\n\n"
+            + "You have a recruiting and hiring notebook with synthetic examples and "
+            + "uncited hypothesis pages. Treat uncited, time-sensitive claims as unverified; "
+            + "do not present them as facts. Draw on the notebook when the operator asks "
+            + "about recruiting strategy, "
             + "interview prep, ATS behavior, comp negotiation, referrals, AI "
-            + "screening, or market dynamics. When useful, cite the specific file "
+            + "screening, or market dynamics. When useful, state the evidence status and "
+            + "cite the specific file "
             + "path so the operator can read deeper.\n\n"
             + kb_index
         )
@@ -1252,7 +1255,9 @@ def _first_summary_line(path: Path) -> str:
             continue
         if line.startswith("---"):
             continue
- # Strip leading/trailing italic / bold markers
+        if line.startswith("<!--"):
+            continue
+        # Strip leading/trailing italic / bold markers.
         cleaned = line.strip("*_").strip()
         if not cleaned:
             continue

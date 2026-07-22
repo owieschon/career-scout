@@ -135,6 +135,96 @@ TRAVEL = TRAVEL_RAW
 
 
 _SRC_ERR = []  # diagnostic: records fetch failures so an empty run explains itself
+RESCUE_SAMPLE_MAX_DEFAULT = 20
+RESCUE_SAMPLE_MAX_HARD = 100
+
+
+def resolve_rescue_sample_limit(raw: str | None) -> tuple[int | None, int, str]:
+    """Resolve the configured recall sample without allowing unbounded model work."""
+    if raw is None:
+        return RESCUE_SAMPLE_MAX_DEFAULT, RESCUE_SAMPLE_MAX_DEFAULT, "default"
+    try:
+        configured = int(raw)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "ALICE_DROPPED_SAMPLE_MAX must be an integer from 0 to "
+            f"{RESCUE_SAMPLE_MAX_HARD}"
+        ) from exc
+    if not 0 <= configured <= RESCUE_SAMPLE_MAX_HARD:
+        raise ValueError(
+            "ALICE_DROPPED_SAMPLE_MAX must be from 0 to "
+            f"{RESCUE_SAMPLE_MAX_HARD}; got {configured}"
+        )
+    return configured, configured, "configured"
+
+
+def _initial_rescue_stats(config: dict) -> dict:
+    return {
+        **{f"rescue_sample_{key}": value for key, value in config.items()},
+        "fit_judge_attempted": 0,
+        "fit_judge_completed": 0,
+        "fit_judge_failed": 0,
+        "fit_judge_failure_classes": [],
+        "fit_judged": 0,
+        "rescue_candidates": 0,
+        "rescue_dropped_sampled": 0,
+        "rescue_dropped_total": 0,
+        "rescue_judge_attempted": 0,
+        "rescue_judge_completed": 0,
+        "rescue_judge_failed": 0,
+        "rescue_judge_failure_classes": [],
+        "rescue_judged": 0,
+        "rescue_unjudged_no_body": 0,
+        "skip_reason_write_failures": 0,
+    }
+
+
+def _judge_batch(records: list[dict], stats: dict, *, lane: str) -> None:
+    """Run one judge batch and record attempted, completed, and failed work."""
+    if lane not in {"fit_judge", "rescue_judge"}:
+        raise ValueError(f"unsupported judge lane: {lane}")
+    stats[f"{lane}_attempted"] = len(records)
+    failure_classes: set[str] = set()
+    try:
+        fit_judge.judge_survivors(records, drop_not_fit=False)
+    except Exception as exc:
+        for record in records:
+            record.setdefault("fit_verdict", "UNJUDGED-JUDGE-ERROR")
+            record.setdefault("fit_reason", f"{type(exc).__name__}: {exc}")
+            record.setdefault("driving_constraint", "batch_error")
+        failure_classes.add(type(exc).__name__)
+        stats[
+            "fit_judge_error" if lane == "fit_judge" else "rescue_judge_error"
+        ] = f"{type(exc).__name__}: {exc}"
+
+    completed = 0
+    for record in records:
+        constraint = str(record.get("driving_constraint") or "")
+        if constraint in {"judge_error", "parse_error", "batch_error"}:
+            failure_classes.add(constraint)
+            continue
+        if record.get("fit_verdict") in fit_judge.VERDICTS:
+            completed += 1
+    failed = len(records) - completed
+    stats[f"{lane}_completed"] = completed
+    stats[f"{lane}_failed"] = failed
+    stats[f"{lane}_failure_classes"] = sorted(failure_classes)
+    stats["fit_judged" if lane == "fit_judge" else "rescue_judged"] = completed
+
+
+def _record_skip_reason(mark_skip, rec: dict, reason: str, stats: dict) -> bool:
+    try:
+        mark_skip(rec.get("source"), rec.get("ext_id"), reason)
+    except Exception as exc:
+        stats["skip_reason_write_failures"] += 1
+        print(
+            "[skip-reason-write-error] "
+            f"source={rec.get('source')} ext_id={rec.get('ext_id')} "
+            f"error={type(exc).__name__}: {exc}",
+            file=sys.stderr,
+        )
+        return False
+    return True
 
 
 def _get(url, as_json=True, timeout=25):
@@ -1067,6 +1157,9 @@ def _prepare_fit_judge(recs):
 
 
 def run(dry_run=False, out_days=3, state_path=None, use_ledger=False):
+    _rescue_configured, _DROPPED_SAMPLE_MAX, _rescue_config_source = (
+        resolve_rescue_sample_limit(os.environ.get("ALICE_DROPPED_SAMPLE_MAX"))
+    )
  # State backend: JSON file (cloud/routine) or sqlite pipeline.db (local).
     if state_path:
         store = JsonState(state_path)
@@ -1112,32 +1205,37 @@ def run(dry_run=False, out_days=3, state_path=None, use_ledger=False):
                                 "domain_skip": 0, "remote_skip": 0, "killed": 0,
                                 "travel_skip": 0, "qualified": 0}
  # Bounded dropped-sample for the rescue judge.
- # Collected only when ALICE_FIT_JUDGE=1; invisible otherwise.
-    _rescue_active = os.environ.get("ALICE_FIT_JUDGE", "1") != "0"  # judge is default-on (set ALICE_FIT_JUDGE=0 to disable)
-    _DROPPED_SAMPLE_MAX = int(os.environ.get("ALICE_DROPPED_SAMPLE_MAX", "20"))
+    # Collected only when ALICE_FIT_JUDGE=1; invisible otherwise.
+    _fit_judge_active = os.environ.get("ALICE_FIT_JUDGE", "1") != "0"
+    _rescue_active = _fit_judge_active and _DROPPED_SAMPLE_MAX > 0
+    _rescue_config = {
+        "active": _rescue_active,
+        "configured": _rescue_configured,
+        "configuration_source": _rescue_config_source,
+        "effective": _DROPPED_SAMPLE_MAX,
+        "hard_max": RESCUE_SAMPLE_MAX_HARD,
+    }
+    print("[rescue-config] " + json.dumps(_rescue_config, sort_keys=True))
+    stats.update(_initial_rescue_stats(_rescue_config))
     dropped_sample: list = []   # bounded; each entry: {**j, skip_reason=...}
     dropped_total = 0           # all drops (before cap), for log
 
     def _collect_drop(rec, reason):
         """Collect a gate-dropped rec into the bounded rescue sample.
 
-        NO-OP when rescue is inactive. Mutates dropped_total via nonlocal.
-        The rec is copied (shallow) so later gate mutations don't affect it.
+        Always count the drop and attempt to persist its reason. Copy the record
+        into the bounded sample only while the recall lane is active.
         """
         nonlocal dropped_total
         dropped_total += 1
+        stats["rescue_dropped_total"] = dropped_total
  # Persist WHY this role was dropped — ALWAYS, independent of the rescue
  # sample. The seen row already exists (mark() inserted it above).
-        try:
-            mark_skip(rec.get("source"), rec.get("ext_id"), reason)
-        except Exception as _e:
-            try:
-                import obs; obs.capture(_e, where="daily_delta:_collect_drop:mark_skip")
-            except Exception:
-                pass  # diagnostic-only; never let skip-reason break the pipeline
+        _record_skip_reason(mark_skip, rec, reason, stats)
         if _rescue_active and len(dropped_sample) < _DROPPED_SAMPLE_MAX:
             dropped_sample.append({**rec, "skip_reason": reason,
                                     "keyword_dropped": True})
+            stats["rescue_dropped_sampled"] = len(dropped_sample)
 
     for src in sources:
         for j in src:
@@ -1213,16 +1311,9 @@ def run(dry_run=False, out_days=3, state_path=None, use_ledger=False):
  # Constraint-driven fit-judge over gate-survivors. Runs only when
  # ALICE_FIT_JUDGE=1. drop_not_fit=False: NOT-FIT roles stay annotated for
  # audit, not cut here.
-    if _rescue_active:
+    if _fit_judge_active:
         judgeable, unjudged = _prepare_fit_judge(new_qualified)
-        try:
-            fit_judge.judge_survivors(judgeable, drop_not_fit=False)
-        except Exception as e:  # batch-level failure must NOT drop the digest
-            for r in judgeable:
-                r.setdefault("fit_verdict", "UNJUDGED-JUDGE-ERROR")
-                r.setdefault("fit_reason", f"{type(e).__name__}: {e}")
-            stats["fit_judge_error"] = f"{type(e).__name__}: {e}"
-        stats["fit_judged"] = len(judgeable)
+        _judge_batch(judgeable, stats, lane="fit_judge")
         stats["fit_unjudged_no_body"] = len(unjudged)
 
  # The corrected BAND is authoritative — NOT-FIT bands are cut from the
@@ -1246,20 +1337,13 @@ def run(dry_run=False, out_days=3, state_path=None, use_ledger=False):
               f"(cap={_DROPPED_SAMPLE_MAX})")
         if dropped_sample:
             drop_judgeable, drop_unjudged = _prepare_fit_judge(dropped_sample)
-            try:
-                fit_judge.judge_survivors(drop_judgeable, drop_not_fit=False)
-            except Exception as e:
-                for r in drop_judgeable:
-                    r.setdefault("fit_verdict", "UNJUDGED-JUDGE-ERROR")
-                    r.setdefault("fit_reason", f"{type(e).__name__}: {e}")
-                stats["rescue_judge_error"] = f"{type(e).__name__}: {e}"
+            _judge_batch(drop_judgeable, stats, lane="rescue_judge")
             rescue_candidates = [
                 r for r in drop_judgeable
                 if (r.get("fit_band") or r.get("fit_verdict")) in ("FIT", "REACH")
             ]
             stats["rescue_dropped_total"] = dropped_total
             stats["rescue_dropped_sampled"] = len(dropped_sample)
-            stats["rescue_judged"] = len(drop_judgeable)
             stats["rescue_unjudged_no_body"] = len(drop_unjudged)
             stats["rescue_candidates"] = len(rescue_candidates)
             if rescue_candidates:

@@ -1,9 +1,8 @@
 # Deferred features
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 These are autonomous behaviors that are NOT live in Alice yet (or are live but gated). Each entry names what it would deliver, the measurable preconditions for promoting it to autonomous status, and current status.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow doc-length reason="The Deferred features reader path stays in one file because splitting it would separate its operating context from its verification material" -->
+<!-- sourcebound:end purpose -->
 
 
 The rule: a behavior promotes only when the conjunction of preconditions

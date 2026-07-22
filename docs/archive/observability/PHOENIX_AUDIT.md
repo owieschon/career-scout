@@ -1,12 +1,11 @@
 # Phoenix Observability Audit — Alice
 
-<!-- clean-docs:purpose -->
 **Scope:** Read-only audit of Alice (the job-search agent) mapping where Arize Phoenix (open-source, OpenTelemetry-native AI observability + evaluation) would add real value. No Alice code, prompts, or config were modified; the only artifact produced is this document.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow audience reason="This page documents agent behavior as its subject; it addresses maintainers and evaluators rather than handing work to a future agent" -->
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
-<!-- clean-docs:allow doc-length reason="The Phoenix Observability Audit — Alice reader path stays in one file because splitting it would separate its operating context from its verification material" -->
 
+> **Preserved snapshot, captured 2026-05-30.** This audit predates the move from `scripts/` to
+> `src/alice/`, so its paths and line references describe that historical tree. Use the current
+> [observability architecture](../../OBSERVABILITY.md) and
+> [production standard](../../observability/PRODUCTION_STANDARD.md) for present behavior and operating requirements.
 
 **Method:** Grounded in direct reads of the real codebase (Python in `scripts/`; an early assumption of a JS `agent/` layout was wrong and corrected against the tree). Every architectural claim cites a real file:line or live DB/log state. Phoenix capabilities were verified against `arize.com/docs/phoenix` where it matters; unverified claims are flagged.
 
@@ -133,8 +132,6 @@
 What it lets you see that you can't today: the full prompt+response of *every* step (not just the last), the tool loop inside `call()`, and — critically — the per-call token breakdown that exposes the sheet-in-context token blowup (§9).
 
 #### Proposed instrumentation diff (PROPOSED ONLY — not applied)
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
-
 ```diff
 *** /dev/null
 --- a/scripts/telemetry.py

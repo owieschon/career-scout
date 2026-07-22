@@ -1,8 +1,14 @@
 # Alice's Recruiting Knowledge Base
 
-<!-- clean-docs:purpose -->
-Alice is the operator persona's job-search assistant. To advise the operator well, she needs insider knowledge about how hiring actually works from the employer side, recruiters, ATSes, hiring managers, comp, referrals, AI screening, and the current market.
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:purpose -->
+Use this index to inspect the recruiting-knowledge inputs available to Alice and their evidence status; uncited market and vendor pages are hypothesis notebooks, not verified facts.
+<!-- sourcebound:end purpose -->
+
+
+> **Evidence status:** [`sources.md`](sources.md) records no completed source
+> extraction for the current recruiting and market pages. Until a claim has a
+> source URL and access date, treat it as an unverified hypothesis. Synthetic
+> persona and experience files are configuration examples, not real history.
 
 
 This directory is that knowledge base.
@@ -25,7 +31,11 @@ knowledge/
 
 ## How Alice uses it
 
-`scripts/llm.py::load_alice_brief()` is augmented by `load_knowledge_index()` which assembles a one-page index of every document under `knowledge/`. The index is appended to Alice's system prompt for every Telegram chat call so Alice knows what knowledge she has and can cite it when advising the operator.
+`src/alice/llm/llm.py::load_alice_brief()` calls
+`_build_knowledge_index()`, which assembles a one-page index of the Markdown
+documents under `knowledge/`. The index is appended to Alice's system prompt
+for Telegram chat calls. The prompt instructs Alice to label uncited,
+time-sensitive claims as unverified and cite the file path when using them.
 
 When Alice needs deep content on a topic mid-conversation, she can reference the specific file path in her response. (Future enhancement: lazy-load specific files on demand.)
 
@@ -33,9 +43,13 @@ When Alice needs deep content on a topic mid-conversation, she can reference the
 
 - Add new knowledge files as plain Markdown inside the right subdirectory.
 - Each file should open with a one-line summary (used in the index).
-- After adding or updating files, run `python3 scripts/build_knowledge_index.py` (if/when it exists), until then the loader walks the tree at call time.
-- Sources that are blocked, paywalled, or require credentials go in `sources.md` with a note about what the operator would need to provide to unblock them.
+- No generated index step is required; the loader walks the tree at call time.
+- Bind factual external claims to a source URL and access date. Sources that are
+  blocked, paywalled, or require credentials belong in `sources.md`; leave
+  unsupported text labeled as hypothesis material.
 
 ## Tone
 
-These documents are written for Alice, who advises the operator persona. They should read like notes from an experienced talent partner: specific, opinionated where the field has a clear answer, careful where it doesn't. No marketing fluff. No corporate hedging. Insider perspective.
+These documents are written for Alice, who advises the operator persona. Keep
+verified facts separate from hypotheses, name uncertainty directly, and avoid
+marketing claims or unsupported authority.

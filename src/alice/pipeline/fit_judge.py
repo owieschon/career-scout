@@ -12,9 +12,10 @@ WHERE IT SITS:
   The survivor count is tiny, so the expensive model-judge is affordable.
 
 DESIGN PRINCIPLES:
-  - Engine vs config: this module is the engine; fit_model.toml is the config.
-    The module READS the config, never embeds the candidate's specifics. The
-    constraint-loader (`load_constraints`) is pure + testable.
+  - Engine vs config: fit_model.toml owns versioned profile values. This module
+    interprets those values and owns category meanings, exceptions, and verdict
+    semantics. Changes to either can change screening behavior. The constraint
+    loader (`load_constraints`) is pure and testable.
   - Constraint-driven, NOT a hard-coded gate sequence: we feed the model the
     constraints + the JD body and let it judge. We do NOT traffic-control it
     through fixed sub-checks. The deterministic part is only: parse the VERDICT
@@ -184,8 +185,9 @@ def _render_worlds(constraints: Constraints) -> str:
 def build_judge_system(constraints: Constraints) -> str:
     """Construct the fit-judge SYSTEM prompt from the loaded constraints.
 
-    This is the rubric + the candidate's profile, derived ENTIRELY from the config so the
-    human-tuning loop (Layer 3) changes behavior by editing the TOML, not code."""
+    The prompt combines versioned profile values from TOML with stable judgment
+    semantics encoded below. Changes to either input can change behavior.
+    """
     worlds = _render_worlds(constraints)
     fb = constraints.functional_buckets
     return (

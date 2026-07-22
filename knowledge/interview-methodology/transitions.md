@@ -1,8 +1,8 @@
 # Employment transitions — the "why did you leave?" narratives
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 Interview-prep grounding for the job-change story. **Interview-prep ONLY — never render any of this on a résumé or in a cover letter.** These are clean, honest, externally-verifiable answers to the screen-stage "why did you leave / why so short?" question.
-<!-- clean-docs:end purpose -->
+<!-- sourcebound:end purpose -->
 
 
 > Note: the operator persona ("Jordan Avery") is a fictional engineer used to

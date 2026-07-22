@@ -32,10 +32,9 @@ analytics/domain in ironclad-industrial.md. This file holds Cadence Analytics fa
 
 # Cadence Analytics
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 Use this record when the retrieval pipeline needs fictional evidence about the Cadence Analytics agent platform. It preserves the platform's engineering and revenue-operations framing so writers can select role-relevant examples without attributing another source's results to it.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow near-duplicate reason="Experience records share the template's headings and guard language while this file remains the canonical home for Cadence Analytics fictional facts" -->
+<!-- sourcebound:end purpose -->
 
 ## Canonical framing
 

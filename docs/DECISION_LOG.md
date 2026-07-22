@@ -1,19 +1,17 @@
 # Decision Log
 
-<!-- clean-docs:purpose -->
+<!-- sourcebound:purpose -->
 Non-trivial design decisions with the reasoning + the alternatives rejected. Newest first.
-<!-- clean-docs:end purpose -->
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
+<!-- sourcebound:end purpose -->
 
 
 ---
 
 ## 2026-06-01 — Location moved from the LLM judge prompt to a deterministic pre-gate
-<!-- clean-docs:allow section-length reason="This section keeps one tightly coupled procedure or contract together so readers can verify it without crossing section boundaries" -->
 
 **Decision.** Pull the LOCATION viability check out of `fit_judge`'s
 LLM prompt and into a deterministic pre-gate (`src/alice/pipeline/location_gate.py`,
-`location_gate(...) -> kill | reach_flag | ok`). The gate runs *before* the
+`location_travel_gate(...) -> kill | reach_flag | ok`). The gate runs *before* the
 LLM; a `kill` short-circuits the model entirely; `reach_flag` caps the LLM verdict
 at REACH (surface); `ok` lets the LLM judge freely. The LLM prompt was slimmed
 (~15.3K → ~11.5K chars) to judge ONLY domain / function / seniority / comp.
@@ -53,3 +51,7 @@ CS/Onboarding/TAM → domain-soft → REACH).
 **Status.** On branch `alice-location-gate`; merge to main + deploy pending review.
 Follow-ups: 3 residuals (one travel gate-miss; two on-domain sell-into LLM
 over-cuts); an agent-role-labeled set to measure the agent-domain (jordan-v3) benefit.
+
+**Current disposition (verified at commit `2b13057`).** The gate is on `main` and is
+called before the model in `fit_judge.judge_listing()`. The branch and pending
+review statement above records the decision's original state.
